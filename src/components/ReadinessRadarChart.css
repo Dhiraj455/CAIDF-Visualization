@@ -1,0 +1,86 @@
+.readiness-radar-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.readiness-radar-loading,
+.readiness-radar-error {
+  width: 100%;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Radar Chart Tooltip */
+.radar-tooltip {
+  background: linear-gradient(160deg, #1e293b, #0f172a);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.85rem;
+  max-width: 280px;
+  pointer-events: none;
+  z-index: 10001;
+}
+
+.radar-tooltip .tooltip-header {
+  color: #93c5fd;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.radar-tooltip .tooltip-content {
+  color: #e2e8f0;
+  line-height: 1.6;
+}
+
+.radar-tooltip .tooltip-metric {
+  margin: 4px 0;
+  font-size: 0.9rem;
+}
+
+.radar-tooltip .tooltip-content strong {
+  color: #60a5fa;
+  font-weight: 700;
+}
+
+.radar-tooltip .tooltip-desc {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  margin-top: 6px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.radar-tooltip .tooltip-time {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.radar-tooltip .tooltip-scores {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.75rem;
+}
+
+.radar-tooltip .tooltip-scores div {
+  margin: 4px 0;
+  color: #cbd5e1;
+  display: flex;
+  justify-content: space-between;
+}
+
+.radar-tooltip .tooltip-scores strong {
+  color: #10b981;
+  margin-left: 8px;
+}

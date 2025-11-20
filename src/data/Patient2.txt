@@ -1,0 +1,42 @@
+Patient Name:  253
+Age/Gender: 65 Year Old / Female
+Admission Date: 6/15
+Discharge Date: 7/12 
+Discharge Disposition: Acute Rehabilitation Hospital
+Comorbidities: hx heroin use, COPD/asthma- baseline 3LO2 NC, and hypertension
+Primary Providers: Cardiology, Neurology, Internal Medicine, Hematology (MDs), Physical Therapy (PT), Occupational Therapy (OT), Speech-Language Pathology (SLP), Nursing (RN), 
+
+Overview: Admitted after being found down with SaO2 70s, transferred from an outside hospital for higher level of care. She was initially hypoxic and confused, with imaging confirming a left frontal embolic stroke and concern for Takotsubo cardiomyopathy based on elevated troponin and echo findings.
+Most Responsible Diagnosis
+Left anterior cerebral artery embolic stroke 
+Hospital Course: Her hospital course was complicated by aspiration pneumonia and respiratory failure, resulting in intubation, recurrent hypoxia requiring brief ICU readmission and 2 rapid responses, able to be extubated, acute kidney injury r/t hypoperfusion, and a left ventricular thrombus requiring anticoagulation. She was treated with antibiotics, placed on tube feeds, and ultimately stabilized back on baseline 3L O2. 
+Prior level of function: Independent with all mobility and ADLs. Discipline: PT and OT
+Self-care/Caregiving: Unable to care for self with new right-sided weakness, requires physical assistance for transfers, ADLs, and ambulation. Discipline: PT and OT
+Risk for electrolyte imbalance: Resolved acute kidney injury, hypernatremia; however, hyperkalemia persisted from 7/6 to the time of DC.  Discipline: RN and MD
+Decreased cardiac output: TTE showed Takotsubo’s cardiomyopathy with an EF 25-35% and increasing O2 needs during hospitalization, requiring diuretic therapy with Lasix to improve respiratory status. Discipline: RN and MD 
+Risk for impaired gas exchange: New diagnosis of heart failure, and underlying comorbidities of COPD that require continuous supplemental oxygen support, asthma, and current smoking history.  Discipline: RN and MD
+Risk for aspiration: 2 rapid responses during hospitalization were a result of aspiration events.  A video swallow demonstrated some dysphagia. Discipline: SLP, RN and MD
+Risk for thrombosis: A left ventricular thrombus was identified during this hospitalization, and the patient received aspirin, heparin, Lovenox, and was bridged to Coumadin.  On admission, Hgb 20 for suspicion of polycythemia.  Jak2 and EPO were tested negative.  Functional mobility deficits require a 2-person assist for transfers and ambulation. Discipline: RN, MD,  and PT
+Risk for bleeding: patient received aspirin, heparin, Lovenox, and Coumadin during hospitalization and is to continue Lovenox and Coumadin post-DC.  The patient sustained stroke deficits of R-sided weakness that require assistance with self-care.  Therefore, the patient is at risk for falls with a high risk of bleeding complications. Discipline: RN and MD
+Impaired urinary elimination: The patient has new urinary incontinence as a result of the stroke. An external female catheter was used until the patient was able to stand pivot with transfers to the commode. Discipline: RN
+Impaired skin integrity: New urinary incontinence led to moisture-associated dermatitis on the buttocks.  Wound care recommended 20% zinc oxide-3.5% calamine-0.2% menthol (Calazime) barrier paste BID and prn to be applied to the buttocks, perineum, and perianal skin folds.  The patient did experience urticaria on bilateral arms and legs during hospitalization, and Atarax was given. Discipline: RN 
+Activities of Daily Living/Functional mobility:  set up for feeding and grooming, minimum to maximum assistance with dressing, bathing, and toileting. moderate assistance for bed mobility and sitting, 2 person assist required for transfers and ambulation Discipline: PT and OT
+Feeding/Swallowing: Puree diet (Level 4) with no liquid modification (Level 0)/thin liquid. Guidelines: 1:1 supervision during meals, patient to be awake and alert, seated upright at 90 degrees for all intake, small bites/sips, eat/drink slowly.  
+ Medications as tolerated. Discipline: SLP
+
+Discharge Plan:
+Risk for electrolyte imbalance: Continue to follow a  low potassium diet and recheck basic metabolic panel within 1 week post-DC
+Decreased cardiac output: Patient was prescribed Lasix, Metoprolol, Entresto, Jardiance, and Lipitor to manage new heart failure and to follow up with cardiology post-DC and schedule a cardiac catheterization. 
+Risk for impaired gas exchange: Patient was newly prescribed Lasix, Symbicort, and Spiriva to reduce the risk of heart failure and COPD exacerbation. Continue baseline 3-4L O2 nasal cannula.
+Risk for aspiration: SLP recommended a pureed, thin liquid diet.
+Risk for thrombosis: Patient to continue Lovenox and Coumadin post-DC and follow up with the anticoagulation clinic to monitor INR for a goal of 2-3 and Coumadin dosing. Continue PT/OT to increase functional mobility.  A follow-up with hematology was recommended post-DC for further inquiry into a possible polycythemia diagnosis.
+Risk for bleeding: Patient is to follow up with the anticoagulation clinic to monitor INR and Coumadin dosing, and has been placed at an acute rehab center at the time of DC.
+Impaired urinary elimination: Limit use of padding/diapering.  Transfer to acute rehab to continue PT/OT to improve strength and ambulate to the bathroom.
+Risk for self-care deficit: The patient will be DC to acute rehab for assistance with care and continue PT/OT strengthening.  
+Impaired skin integrity: Continue using 20% zinc oxide-3.5% calamine-0.2% menthol (Calazime) paste and Nystatin powder, Q2 hours turns, and limit use of padding/diapering on buttocks. Continue seeking an appointment with an allergist before this hospitalization to address recurring urticaria of the extremities.  
+Communication: Verbal and intelligible 
+Education: Reviewed stroke recovery guidelines, medication management, cardiac care, and dietary restrictions with patient.
+
+Follow-Up Arrangements: Follow up with cardiology to schedule an outpatient cardiac catheterization, Follow up with neurology for neuro deficits related to recent stroke, Follow up with hematology for further evaluation of polycythemia, Follow up with your allergist for further assessment of urticaria, Follow up with the anticoagulation clinic for INR monitoring for a goal of 2-3 and Coumadin dosage recommendations, Recheck BMP Labs for hyperkalemia within 1 week of DC, Follow a Low Potassium, Pureed with thin liquids diet
+Medications: 20% zinc oxide-3.5% calamine-0.2% menthol (Calazime) Q12 apply to buttocks perineal and perianal skin folds, Lasix 20mg 1-tab po QD, Metoprolol XL 100mg 1-tab PO QD, Entresto 49-51mg 1-tab PO BID, Jardiance 10mg tab PO QD, Lipitor 40mg 1-tab PO QHS, Symbicort 2 puffs PO BID, Spiriva 18mcg inhalation cap 1 cap into inhaler and inhale 1 time QD, Lovenox 40mg SQ Q12hrs, Coumadin 2.5mg 1-tab PO QD then per AntiCoag clinic recommendations for INR goal 2-3, Nystatin 100000U/GM powder Apply topically BID to perianal skin folds
+

@@ -1,0 +1,66 @@
+.patient-info-container {
+  border-radius: 25px;
+  background: linear-gradient(120deg, rgba(59,130,246,0.3), rgba(147,51,234,0.2));
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  padding: clamp(15px, 2.5vw, 20px);
+  color: #f1f5f9;
+  height: fit-content;
+  min-height: 200px;
+}
+
+.patient-info-loading {
+  border-radius: 25px;
+  background: linear-gradient(120deg, rgba(59,130,246,0.3), rgba(147,51,234,0.2));
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  padding: 20px;
+  color: #f1f5f9;
+  text-align: center;
+}
+
+.patient-info-title {
+  margin: 0 0 20px 0;
+  font-size: 1.2em;
+  font-weight: 700;
+  color: #93c5fd;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.patient-info-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.patient-info-field {
+  padding: 12px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.patient-info-label {
+  font-size: 0.85em;
+  color: #cbd5e1;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.patient-info-value {
+  font-size: 1.1em;
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.patient-info-value-disposition {
+  font-size: 0.95em;
+  color: #f1f5f9;
+  font-weight: 500;
+  line-height: 1.4;
+}
+

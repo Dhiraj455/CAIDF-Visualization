@@ -1,0 +1,38 @@
+Patient Name: 12738
+Age/Gender: 75 Year Old/ Male
+Admission Date: 5/4
+Discharge Date: 5/11
+Discharge Disposition: Home with 24/7 supervision (patient declined subacute rehabilitation (SAR) placement)
+Comorbidities: coronary artery disease (CAD), hypertension (HTN), type 2 diabetes mellitus (T2DM), chronic obstructive pulmonary disease (COPD), chronic kidney disease (CKD), congestive heart failure (CHF), stroke- dysarthria, vision and hearing impairment, hx of opioid use
+Primary Providers: Family Medicine, Physical Therapy (PT), Occupational Therapy (OT), Speech Language Pathology (SLP), Nursing, Case Management, Wound Care 
+Consult to Social work (for Durable Medical Equipment, DME)
+
+Overview: Patient presented from primary care clinic following two to three falls over several days, increasing weakness, and concern for heroin use and inability to care for himself. Emergency medical services (EMS) administered Narcan en route. Primary Care Provider (PCP) suspected need for nursing home placement. The patient was admitted for further evaluation of falls, electrolyte abnormalities, and substance use.
+Most Responsible Diagnosis
+Falls – multifactorial due to osteoarthritis, opioid use/intoxication, and electrolyte imbalance.
+Hospital Course: 
+Patient with multiple medical problems including CAD, HTN, T2DM, CAD, COPD, CKD.  Found to be hypokalemic, hypomagnesemic. Baseline dysarthria making history taking difficult. There was a new Right-posterior thigh wound present on admission felt to be a pressure ulcer.  Patient was on chronic narcotics for arthritic pain although PCP was trying to wean.  Hypokalemia thought to be due to incorrect bumex dosages. 
+Prior level of function: Moderately independent with a walker for household ambulation and activities of daily living (ADLs) at baseline, limited by pain.
+Self-care/Caregiving: Lives in a first floor apartment with 7 steps to enter with tub/shower. Has a caregiver that does not live with him but checks in frequently (living in same building) as well as a daughter that does not live with him. 
+
+Hospital Management:
+Medical management:  Electrolyte abnormalities (K and Mg, hypokalemia and hypomagnesia) noted. Plan: Dose of Bumex was reduced from 2mg to 1mg to manage CHF. Discipline: MD. RN
+Pain management: Chronic difficulty with pain control for arthritis. Plan: During this admission, bilateral knee arthrocentesis performed. Discipline: MD. RN
+Substance Abuse: Withdrawal symptoms of substance abuse during hospitalization. Plan: Suboxone started for opioid use management (wean). Acetaminophen, Ibuprofen, Voltaren gel, and heat. Discipline: MD. RN
+Wound care: new right posterior thigh ulcer, Plan: Wound care initiated with Allevyn Ag + Optifoam, povidone-iodine. Foam dressings daily, no infection noted. Discipline: MD. RN
+Chronic risk for constipation: Chronic use of opioid use to manage pain. Linzess to manage chronic constipation. Plan: Patient was given Senna and Miralax with bowel movement occurrence on 5/9. Discipline: MD. RN
+Chronic Urinary incontinence: Started last year. Plan: continue with incontinence supplies managed by PCP.
+Activities of Daily Living/Functional mobility:  Moderately independent in ADLs and instrumental activities of daily living (IADLs) (moderately independent for feeding; minimum assistance for lower body dressing, bathing, toileting) with use of adaptive equipment (AE) and DME (cane, rolling walker, shower chair with back). Patient required minimum assistance for bed mobility and stand-step transfers with rolling walker. Unsafe for ambulation or stair use at this time. Balance: standby assist sitting, minimum assistance standing. Plan: Durable Medical Equipment: Wheelchair prescribed. ADL training, functional transfer and bed mobility training, sitting balance training, compensatory training using AE and DME, endurance training. Discipline: PT/OT/SW
+Feeding/Swallowing:  Bedside swallow eval. Plan: Soft bite-sized diet (Level 6)/Thin Liquids (Level0); sit upright with meals and snacks, eat slowly with small bites and sips; Precautions: maintain strict oral care to reduce risk of aspiration pneumonia  Discipline: SLP
+
+Discharge Plan
+Substance Use: Suboxone titration initiated and continuing post-discharge.
+Skin/Wound Care: Daily dressing changes using Allevyn Ag, Optifoam, and povidone-iodine. Wound clinic follow-up 5/12.
+Mobility: Manual wheelchair for ADLs. Home exercise program (HEP) provided by PT. 24/7 supervision recommended.
+Swallowing: Soft bite-sized diet (Level 6)/Thin liquids (Level 0). Sit upright with meals/snacks, eat slowly with small bites and sips. Strict oral care.
+Communication: Hard of hearing; benefits from increased vocal loudness from communication partners.
+Medication assistance: Patient was handling his own medications prior to this admission. Concerns that patient was taking too much of his diuretics as well inappropriate administration of pain medications. Recommend medication management oversight.
+Education: Reviewed swallowing precautions, mobility guidelines, and medication changes with patient.
+
+Follow-Up Arrangements: Home Health PT, Suboxone titration continuation, Social work arranged wound dressing supply delivery, Labs to recheck for anemia, Wound care clinic on 5/12, Audiology referral
+Medications: Bumex 1 mg twice a day (BID) (reduced), Suboxone 4 mg BID x 7 day, Linzess (resume home), Tylenol, Voltaren gel, ibuprofen, Allevyn Ag 6x6 pads, Optifoam 6x6 pads, Povidone-iodine 10% solution, Senna, Miralax (during stay)

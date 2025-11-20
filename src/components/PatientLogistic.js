@@ -1,0 +1,602 @@
+import React, { useEffect, useRef, useState } from "react";
+import * as d3 from "d3";
+import { extractPatientData } from "../utils/extract";
+import patient1Data from "../data/Patient1.txt";
+import patient2Data from "../data/Patient2.txt";
+import CommonModal from "./CommonModal";
+import "./PatientLogistic.css";
+
+export default function PatientLogistic({ patientNumber = 1 }) {
+  const ref = useRef();
+  const [showModal, setShowModal] = useState(null);
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const patientFile = patientNumber === 1 ? patient1Data : patient2Data;
+    fetch(patientFile)
+      .then((res) => res.text())
+      .then((text) => setData(extractPatientData(text)));
+  }, [patientNumber]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    const container = ref.current?.parentElement;
+    if (!container) return;
+
+    const svg = d3.select(ref.current);
+    svg.selectAll("*").remove();
+
+    const containerWidth = container.clientWidth || 400;
+    const width = Math.max(containerWidth - 40, 300);
+    const margin = { top: 25, left: 20 };
+    const textColor = "#e2e8f0";
+
+    const colors = {
+      Education: "url(#gradEdu)",
+      Medication: "url(#gradMed)",
+      Caregiver: "url(#gradCare)",
+      "Follow-ups": "url(#gradFollow)",
+    };
+
+    const sections = [
+      {
+        label: "Education",
+        progress: data.education.topics.length
+          ? data.education.completed / data.education.topics.length
+          : 0,
+        completed: data.education.completed,
+        total: data.education.topics.length,
+        description: "View education topics and completion status",
+      },
+      {
+        label: "Medication",
+        progress: data.medications.length
+          ? data.medications.filter((m) => m.status === "completed").length /
+            data.medications.length
+          : 0,
+        completed: data.medications.filter((m) => m.status === "completed").length,
+        total: data.medications.length,
+        description: "View medication list and completion status",
+      },
+      {
+        label: "Caregiver",
+        progress:
+          data.caregiver.status === "full"
+            ? 1
+            : data.caregiver.status === "partial"
+            ? 0.6
+            : 0.3,
+        completed: data.caregiver.status === "full" ? 1 : data.caregiver.status === "partial" ? 1 : 0,
+        total: 1,
+        description: "View caregiver information and status",
+      },
+      {
+        label: "Follow-ups",
+        progress: data.followUps.length
+          ? data.followUps.filter((f) => f.completed).length /
+            data.followUps.length
+          : 0,
+        completed: data.followUps.filter((f) => f.completed).length,
+        total: data.followUps.length,
+        description: "View follow-up tasks and completion status",
+      },
+    ];
+
+    // --- Gradient Definitions ---
+    const defs = svg.append("defs");
+
+    const gradients = [
+      { id: "gradEdu", from: "#60a5fa", to: "#3b82f6" },
+      { id: "gradMed", from: "#34d399", to: "#059669" },
+      { id: "gradCare", from: "#f472b6", to: "#db2777" },
+      { id: "gradFollow", from: "#facc15", to: "#eab308" },
+    ];
+
+    gradients.forEach((g) => {
+      const grad = defs
+        .append("linearGradient")
+        .attr("id", g.id)
+        .attr("x1", "0%")
+        .attr("x2", "100%")
+        .attr("y1", "0%")
+        .attr("y2", "0%");
+      grad.append("stop").attr("offset", "0%").attr("stop-color", g.from);
+      grad.append("stop").attr("offset", "100%").attr("stop-color", g.to);
+    });
+
+    // --- Render Title ---
+    let y = margin.top;
+    svg
+      .append("text")
+      .attr("x", margin.left)
+      .attr("y", y)
+      .text("🧾 Patient Logistics & Education")
+      .style("fill", "#fcfcfcff")
+      .style("font-size", "1em")
+      .style("font-weight", "700");
+
+    y += 35;
+
+    // Create tooltip element
+    const tooltip = d3.select("body")
+      .append("div")
+      .attr("class", "logistic-tooltip")
+      .style("opacity", 0)
+      .style("position", "absolute")
+      .style("pointer-events", "none")
+      .style("z-index", 10001);
+
+    // --- Render Progress Bars ---
+    sections.forEach((sec, i) => {
+      const group = svg
+        .append("g")
+        .style("cursor", "pointer")
+        .on("click", () => setShowModal(sec.label));
+
+      group
+        .append("text")
+        .attr("x", margin.left)
+        .attr("y", y)
+        .text(sec.label)
+        .style("fill", textColor)
+        .style("font-size", "0.9em")
+        .style("font-weight", "600");
+
+      y += 8;
+
+      const barWidth = width - 100;
+      const barHeight = 12;
+
+      group
+        .append("rect")
+        .attr("x", margin.left)
+        .attr("y", y)
+        .attr("width", barWidth)
+        .attr("height", barHeight)
+        .attr("rx", 6)
+        .style("fill", "rgba(255,255,255,0.08)");
+
+      const bar = group
+        .append("rect")
+        .attr("x", margin.left)
+        .attr("y", y)
+        .attr("width", 0)
+        .attr("height", barHeight)
+        .attr("rx", 6)
+        .style("fill", colors[sec.label])
+        .style("filter", "drop-shadow(0 0 6px rgba(255,255,255,0.2))");
+
+      bar
+        .transition()
+        .duration(1000)
+        .ease(d3.easeCubicOut)
+        .attr("width", barWidth * sec.progress);
+
+      group
+        .append("text")
+        .attr("x", width - 40)
+        .attr("y", y + 10)
+        .text(`${Math.round(sec.progress * 100)}%`)
+        .style("fill", textColor)
+        .style("font-size", "0.8em")
+        .style("font-weight", "500");
+
+      // Hover Glow and Tooltip
+      group
+        .on("mouseover", function (event) {
+          d3.select(this)
+            .select("rect:nth-child(2)")
+            .transition()
+            .duration(200)
+            .style("filter", "drop-shadow(0 0 12px rgba(255,255,255,0.5))");
+          
+          const [mouseX, mouseY] = d3.pointer(event, document.body);
+          tooltip
+            .html(`<div class="tooltip-content">
+              <div class="tooltip-description">${sec.description}</div>
+              <div class="tooltip-count">${sec.completed}/${sec.total} completed</div>
+            </div>`)
+            .style("left", (mouseX + 10) + "px")
+            .style("top", (mouseY - 10) + "px")
+            .transition()
+            .duration(200)
+            .style("opacity", 1);
+        })
+        .on("mousemove", function (event) {
+          const [mouseX, mouseY] = d3.pointer(event, document.body);
+          tooltip
+            .style("left", (mouseX + 10) + "px")
+            .style("top", (mouseY - 10) + "px");
+        })
+        .on("mouseout", function () {
+          d3.select(this)
+            .select("rect:nth-child(2)")
+            .transition()
+            .duration(200)
+            .style("filter", "drop-shadow(0 0 6px rgba(255,255,255,0.2))");
+          
+          tooltip
+            .transition()
+            .duration(200)
+            .style("opacity", 0);
+        });
+
+      y += 32;
+    });
+
+    // Set SVG dimensions
+    svg.attr("width", width).attr("height", y + 10);
+
+    // Cleanup function
+    return () => {
+      d3.select("body").select(".logistic-tooltip").remove();
+    };
+  }, [data]);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (data && ref.current) {
+        const container = ref.current.parentElement;
+        if (container) {
+          const svg = d3.select(ref.current);
+          svg.selectAll("*").remove();
+
+          const containerWidth = container.clientWidth || 400;
+          const width = Math.max(containerWidth - 40, 300);
+          const margin = { top: 25, left: 20 };
+          const textColor = "#e2e8f0";
+
+          const colors = {
+            Education: "url(#gradEdu)",
+            Medication: "url(#gradMed)",
+            Caregiver: "url(#gradCare)",
+            "Follow-ups": "url(#gradFollow)",
+          };
+
+          const sections = [
+            {
+              label: "Education",
+              progress: data.education.topics.length
+                ? data.education.completed / data.education.topics.length
+                : 0,
+              completed: data.education.completed,
+              total: data.education.topics.length,
+              description: "View education topics and completion status",
+            },
+            {
+              label: "Medication",
+              progress: data.medications.length
+                ? data.medications.filter((m) => m.status === "completed").length /
+                  data.medications.length
+                : 0,
+              completed: data.medications.filter((m) => m.status === "completed").length,
+              total: data.medications.length,
+              description: "View medication list and completion status",
+            },
+            {
+              label: "Caregiver",
+              progress:
+                data.caregiver.status === "full"
+                  ? 1
+                  : data.caregiver.status === "partial"
+                  ? 0.6
+                  : 0.3,
+              completed: data.caregiver.status === "full" ? 1 : data.caregiver.status === "partial" ? 1 : 0,
+              total: 1,
+              description: "View caregiver information and status",
+            },
+            {
+              label: "Follow-ups",
+              progress: data.followUps.length
+                ? data.followUps.filter((f) => f.completed).length /
+                  data.followUps.length
+                : 0,
+              completed: data.followUps.filter((f) => f.completed).length,
+              total: data.followUps.length,
+              description: "View follow-up tasks and completion status",
+            },
+          ];
+
+          const defs = svg.append("defs");
+          const gradients = [
+            { id: "gradEdu", from: "#60a5fa", to: "#3b82f6" },
+            { id: "gradMed", from: "#34d399", to: "#059669" },
+            { id: "gradCare", from: "#f472b6", to: "#db2777" },
+            { id: "gradFollow", from: "#facc15", to: "#eab308" },
+          ];
+
+          gradients.forEach((g) => {
+            const grad = defs
+              .append("linearGradient")
+              .attr("id", g.id)
+              .attr("x1", "0%")
+              .attr("x2", "100%")
+              .attr("y1", "0%")
+              .attr("y2", "0%");
+            grad.append("stop").attr("offset", "0%").attr("stop-color", g.from);
+            grad.append("stop").attr("offset", "100%").attr("stop-color", g.to);
+          });
+
+          let y = margin.top;
+          svg
+            .append("text")
+            .attr("x", margin.left)
+            .attr("y", y)
+            .text("🧾 Patient Logistics & Education")
+            .style("fill", "#fcfcfcff")
+            .style("font-size", "1em")
+            .style("font-weight", "700");
+
+          y += 35;
+
+          // Create or get tooltip element
+          let tooltip = d3.select("body").select(".logistic-tooltip");
+          if (tooltip.empty()) {
+            tooltip = d3.select("body")
+              .append("div")
+              .attr("class", "logistic-tooltip")
+              .style("opacity", 0)
+              .style("position", "absolute")
+              .style("pointer-events", "none")
+              .style("z-index", 10001);
+          }
+
+          sections.forEach((sec, i) => {
+            const group = svg
+              .append("g")
+              .style("cursor", "pointer")
+              .on("click", () => setShowModal(sec.label));
+
+            group
+              .append("text")
+              .attr("x", margin.left)
+              .attr("y", y)
+              .text(sec.label)
+              .style("fill", textColor)
+              .style("font-size", "0.9em")
+              .style("font-weight", "600");
+
+            y += 8;
+
+            const barWidth = width - 100;
+            const barHeight = 12;
+
+            group
+              .append("rect")
+              .attr("x", margin.left)
+              .attr("y", y)
+              .attr("width", barWidth)
+              .attr("height", barHeight)
+              .attr("rx", 6)
+              .style("fill", "rgba(255,255,255,0.08)");
+
+            const bar = group
+              .append("rect")
+              .attr("x", margin.left)
+              .attr("y", y)
+              .attr("width", 0)
+              .attr("height", barHeight)
+              .attr("rx", 6)
+              .style("fill", colors[sec.label])
+              .style("filter", "drop-shadow(0 0 6px rgba(255,255,255,0.2))");
+
+            bar
+              .transition()
+              .duration(1000)
+              .ease(d3.easeCubicOut)
+              .attr("width", barWidth * sec.progress);
+
+            group
+              .append("text")
+              .attr("x", width - 40)
+              .attr("y", y + 10)
+              .text(`${Math.round(sec.progress * 100)}%`)
+              .style("fill", textColor)
+              .style("font-size", "0.8em")
+              .style("font-weight", "500");
+
+            // Hover Glow and Tooltip
+            group
+              .on("mouseover", function (event) {
+                d3.select(this)
+                  .select("rect:nth-child(2)")
+                  .transition()
+                  .duration(200)
+                  .style("filter", "drop-shadow(0 0 12px rgba(255,255,255,0.5))");
+                
+                const [mouseX, mouseY] = d3.pointer(event, document.body);
+                tooltip
+                  .html(`<div class="tooltip-content">
+                    <div class="tooltip-description">${sec.description}</div>
+                    <div class="tooltip-count">${sec.completed}/${sec.total} completed</div>
+                  </div>`)
+                  .style("left", (mouseX + 10) + "px")
+                  .style("top", (mouseY - 10) + "px")
+                  .transition()
+                  .duration(200)
+                  .style("opacity", 1);
+              })
+              .on("mousemove", function (event) {
+                const [mouseX, mouseY] = d3.pointer(event, document.body);
+                tooltip
+                  .style("left", (mouseX + 10) + "px")
+                  .style("top", (mouseY - 10) + "px");
+              })
+              .on("mouseout", function () {
+                d3.select(this)
+                  .select("rect:nth-child(2)")
+                  .transition()
+                  .duration(200)
+                  .style("filter", "drop-shadow(0 0 6px rgba(255,255,255,0.2))");
+                
+                tooltip
+                  .transition()
+                  .duration(200)
+                  .style("opacity", 0);
+              });
+
+            y += 32;
+          });
+
+          svg.attr("width", width).attr("height", y + 10);
+        }
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      d3.select("body").select(".logistic-tooltip").remove();
+    };
+  }, [data]);
+
+  // --- Modal Details ---
+  function getModalContent() {
+    if (!data) return null;
+    switch (showModal) {
+      case "Education":
+        return {
+          title: "🎓 Education Topics",
+          items: data.education.topics.map((e, i) => ({
+            text: e,
+            completed: i < data.education.completed,
+          })),
+        };
+      case "Medication":
+        return {
+          title: "💊 Medication Details",
+          items: data.medications.map((m) => ({
+            text: m.name,
+            completed: m.status === "completed",
+          })),
+        };
+      case "Caregiver":
+        return {
+          title: "🧑‍🤝‍🧑 Caregiver Info",
+          items: [
+            {
+              text: data.caregiver.text,
+              completed: data.caregiver.status === "full",
+            },
+          ],
+        };
+      case "Follow-ups":
+        return {
+          title: "📋 Follow-up Tasks",
+          items: data.followUps.map((f) => ({
+            text: f.name,
+            completed: f.completed,
+          })),
+        };
+      default:
+        return null;
+    }
+  }
+
+  const modal = getModalContent();
+
+  // Dummy upcoming appointments data
+  const upcomingAppointments = [
+    {
+      id: 1,
+      type: "Wound Care Clinic",
+      date: "5/12/2024",
+      time: "10:00 AM",
+      location: "Main Hospital - 3rd Floor",
+      provider: "Dr. Sarah Chen",
+      status: "confirmed"
+    },
+    {
+      id: 2,
+      type: "Physical Therapy",
+      date: "5/14/2024",
+      time: "2:30 PM",
+      location: "Rehabilitation Center",
+      provider: "PT John Martinez",
+      status: "confirmed"
+    },
+    {
+      id: 3,
+      type: "Primary Care Follow-up",
+      date: "5/18/2024",
+      time: "11:15 AM",
+      location: "Primary Care Clinic",
+      provider: "Dr. Michael Thompson",
+      status: "pending"
+    },
+    {
+      id: 4,
+      type: "Audiology Consultation",
+      date: "5/20/2024",
+      time: "9:00 AM",
+      location: "Hearing Center",
+      provider: "Dr. Emily Rodriguez",
+      status: "pending"
+    }
+  ];
+
+  return (
+    <>
+      <div className="patient-logistic-container">
+        <div className="logistic-svg-container">
+          <svg ref={ref}></svg>
+        </div>
+        
+        {/* Upcoming Appointments Section */}
+        <div className="appointments-section">
+          <h3 className="appointments-title">📅 Upcoming Appointments</h3>
+          <div className="appointments-list">
+            {upcomingAppointments.map((appt) => (
+              <div key={appt.id} className="appointment-card">
+                <div className="appointment-header">
+                  <span className="appointment-type">{appt.type}</span>
+                  <span className={`appointment-status appointment-status-${appt.status}`}>
+                    {appt.status === "confirmed" ? "✓ Confirmed" : "⏳ Pending"}
+                  </span>
+                </div>
+                <div className="appointment-details">
+                  <div className="appointment-detail-item">
+                    <span className="appointment-icon">📆</span>
+                    <span>{appt.date} at {appt.time}</span>
+                  </div>
+                  <div className="appointment-detail-item">
+                    <span className="appointment-icon">📍</span>
+                    <span>{appt.location}</span>
+                  </div>
+                  <div className="appointment-detail-item">
+                    <span className="appointment-icon">👤</span>
+                    <span>{appt.provider}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ✨ MODAL */}
+      {modal && (
+        <CommonModal
+          isOpen={!!modal}
+          onClose={() => setShowModal(null)}
+          title={modal.title}
+        >
+          <ul className="common-modal-list">
+            {modal.items.map((item, i) => (
+              <li key={i} className="common-modal-list-item">
+                <span
+                  className={`common-modal-status-icon ${item.completed ? "common-modal-status-completed" : "common-modal-status-pending"}`}
+                >
+                  {item.completed ? "✅" : "⏳"}
+                </span>
+                {item.text}
+              </li>
+            ))}
+          </ul>
+        </CommonModal>
+      )}
+    </>
+  );
+}
