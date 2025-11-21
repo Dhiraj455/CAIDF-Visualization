@@ -84,22 +84,27 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
 
     const containerWidth = container.clientWidth || 800;
     const containerHeight = container.clientHeight || 500;
-    const width = Math.max(containerWidth - 40, 500);
-    const height = Math.max(Math.min(containerHeight - 40, 450), 350);
     
-    // Adjust margins based on container size
+    // Adjust margins based on container size - ensure legend space
     const margin = { 
       top: 60, 
-      right: width > 700 ? 120 : 80, 
-      bottom: 60, 
+      right: containerWidth > 700 ? 120 : 100, 
+      bottom: 80, 
       left: 60 
     };
+    
+    // Calculate width and height to fit within container
+    const width = Math.max(containerWidth - 20, 500);
+    const height = Math.max(Math.min(containerHeight - 20, containerHeight - 20), 300);
 
     const svg = d3.select(container)
       .append("svg")
       .attr("width", width)
       .attr("height", height)
-      .style("font-family", "sans-serif");
+      .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .style("font-family", "sans-serif")
+      .style("overflow", "hidden");
 
     // Title
     svg.append("text")
@@ -251,24 +256,22 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
         tooltip.style("opacity", 0);
       });
 
-    // Legend - only show if there's enough space
-    if (width > 600) {
-      const legend = svg.append("g")
-        .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`);
+    // Legend - always show
+    const legend = svg.append("g")
+      .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`);
 
-      const legendData = [
-        { label: "Low Risk", color: "#1a9850", score: "0.0–0.5" },
-        { label: "Medium Risk", color: "#fee08b", score: "0.5–1.5" },
-        { label: "High Risk", color: "#d73027", score: "1.5–3.0" }
-      ];
+    const legendData = [
+      { label: "Low Risk", color: "#1a9850", score: "0.0–0.5" },
+      { label: "Medium Risk", color: "#fee08b", score: "0.5–1.5" },
+      { label: "High Risk", color: "#d73027", score: "1.5–3.0" }
+    ];
 
-      legendData.forEach((item, i) => {
-        const lg = legend.append("g").attr("transform", `translate(0, ${i * 25})`);
-        lg.append("circle").attr("r", 5).attr("fill", item.color).attr("stroke", "#fff").attr("stroke-width", 1);
-        lg.append("text").attr("x", 12).attr("y", 4).attr("font-size", "11px").attr("fill", "#e2e8f0").text(item.label);
-        lg.append("text").attr("x", 12).attr("y", 16).attr("font-size", "9px").attr("fill", "#94a3b8").text(`(${item.score})`);
-      });
-    }
+    legendData.forEach((item, i) => {
+      const lg = legend.append("g").attr("transform", `translate(0, ${i * 25})`);
+      lg.append("circle").attr("r", 5).attr("fill", item.color).attr("stroke", "#fff").attr("stroke-width", 1);
+      lg.append("text").attr("x", 12).attr("y", 4).attr("font-size", "11px").attr("fill", "#e2e8f0").text(item.label);
+      lg.append("text").attr("x", 12).attr("y", 16).attr("font-size", "9px").attr("fill", "#94a3b8").text(`(${item.score})`);
+    });
 
     // Cleanup function
     return () => {
@@ -285,21 +288,27 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
         
         const containerWidth = container.clientWidth || 800;
         const containerHeight = container.clientHeight || 500;
-        const width = Math.max(containerWidth - 40, 500);
-        const height = Math.max(Math.min(containerHeight - 40, 450), 350);
         
+        // Adjust margins based on container size - ensure legend space
         const margin = { 
           top: 60, 
-          right: width > 700 ? 120 : 80, 
+          right: containerWidth > 700 ? 120 : 100, 
           bottom: 60, 
           left: 60 
         };
+        
+        // Calculate width and height to fit within container
+        const width = Math.max(containerWidth - 20, 500);
+        const height = Math.max(Math.min(containerHeight - 20, containerHeight - 20), 350);
 
         const svg = d3.select(container)
           .append("svg")
           .attr("width", width)
           .attr("height", height)
-          .style("font-family", "sans-serif");
+          .attr("viewBox", `0 0 ${width} ${height}`)
+          .attr("preserveAspectRatio", "xMidYMid meet")
+          .style("font-family", "sans-serif")
+          .style("overflow", "hidden");
 
         svg.append("text")
           .attr("x", width / 2)
@@ -444,23 +453,22 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
             tooltip.style("opacity", 0);
           });
 
-        if (width > 600) {
-          const legend = svg.append("g")
-            .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`);
+        // Legend - always show
+        const legend = svg.append("g")
+          .attr("transform", `translate(${width - margin.right + 10}, ${margin.top})`);
 
-          const legendData = [
-            { label: "Low Risk", color: "#1a9850", score: "0.0–0.5" },
-            { label: "Medium Risk", color: "#fee08b", score: "0.5–1.5" },
-            { label: "High Risk", color: "#d73027", score: "1.5–3.0" }
-          ];
+        const legendData = [
+          { label: "Low Risk", color: "#1a9850", score: "0.0–0.5" },
+          { label: "Medium Risk", color: "#fee08b", score: "0.5–1.5" },
+          { label: "High Risk", color: "#d73027", score: "1.5–3.0" }
+        ];
 
-          legendData.forEach((item, i) => {
-            const lg = legend.append("g").attr("transform", `translate(0, ${i * 25})`);
-            lg.append("circle").attr("r", 5).attr("fill", item.color).attr("stroke", "#fff").attr("stroke-width", 1);
-            lg.append("text").attr("x", 12).attr("y", 4).attr("font-size", "11px").attr("fill", "#e2e8f0").text(item.label);
-            lg.append("text").attr("x", 12).attr("y", 16).attr("font-size", "9px").attr("fill", "#94a3b8").text(`(${item.score})`);
-          });
-        }
+        legendData.forEach((item, i) => {
+          const lg = legend.append("g").attr("transform", `translate(0, ${i * 25})`);
+          lg.append("circle").attr("r", 5).attr("fill", item.color).attr("stroke", "#fff").attr("stroke-width", 1);
+          lg.append("text").attr("x", 12).attr("y", 4).attr("font-size", "11px").attr("fill", "#e2e8f0").text(item.label);
+          lg.append("text").attr("x", 12).attr("y", 16).attr("font-size", "9px").attr("fill", "#94a3b8").text(`(${item.score})`);
+        });
       }
     };
 

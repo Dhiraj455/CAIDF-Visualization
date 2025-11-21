@@ -4,6 +4,7 @@
   color: #f1f5f9;
   position: relative;
   overflow-x: hidden;
+  min-height: 100vh;
   line-height: 1.6;
 }
 

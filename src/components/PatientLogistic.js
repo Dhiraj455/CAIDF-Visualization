@@ -28,8 +28,10 @@ export default function PatientLogistic({ patientNumber = 1 }) {
     svg.selectAll("*").remove();
 
     const containerWidth = container.clientWidth || 400;
-    const width = Math.max(containerWidth - 40, 300);
-    const margin = { top: 25, left: 20 };
+    const containerHeight = container.clientHeight || 400;
+    const width = containerWidth;
+    const height = containerHeight;
+    const margin = { top: 15, left: 12, right: 12, bottom: 12 };
     const textColor = "#e2e8f0";
 
     const colors = {
@@ -105,20 +107,7 @@ export default function PatientLogistic({ patientNumber = 1 }) {
       grad.append("stop").attr("offset", "100%").attr("stop-color", g.to);
     });
 
-    // --- Render Title ---
-    let y = margin.top;
-    svg
-      .append("text")
-      .attr("x", margin.left)
-      .attr("y", y)
-      .text("🧾 Patient Logistics & Education")
-      .style("fill", "#fcfcfcff")
-      .style("font-size", "1em")
-      .style("font-weight", "700");
-
-    y += 35;
-
-    // Create tooltip element
+    // Create tooltip element first
     const tooltip = d3.select("body")
       .append("div")
       .attr("class", "logistic-tooltip")
@@ -127,6 +116,40 @@ export default function PatientLogistic({ patientNumber = 1 }) {
       .style("pointer-events", "none")
       .style("z-index", 10001);
 
+    // Calculate title height
+    const titleHeight = 20; // Title text height
+    const titleMargin = 12; // Space after title
+    
+    // --- Render Title ---
+    let y = margin.top;
+    svg
+      .append("text")
+      .attr("x", margin.left)
+      .attr("y", y)
+      .text("🧾 Patient Logistics & Education")
+      .style("fill", "#fcfcfcff")
+      .style("font-size", "15px")
+      .style("font-weight", "700");
+
+    y += titleHeight + titleMargin;
+
+    // Calculate available height for sections
+    const sectionAreaTop = y;
+    const sectionAreaBottom = height - margin.bottom;
+    const availableHeightForSections = sectionAreaBottom - sectionAreaTop;
+    
+    // Calculate spacing - each section needs space for label (6px) + gap (6px) + bar (14px) + spacing
+    const sectionCount = sections.length;
+    const minSectionHeight = 28; // Minimum: label(6) + gap(6) + bar(14) + spacing(2)
+    const maxSectionHeight = 40;
+    
+    // Calculate optimal spacing to fill available height
+    let sectionHeight = availableHeightForSections / sectionCount;
+    sectionHeight = Math.max(minSectionHeight, Math.min(maxSectionHeight, sectionHeight));
+    
+    // Adjust spacing based on calculated section height
+    const sectionSpacing = sectionHeight;
+    
     // --- Render Progress Bars ---
     sections.forEach((sec, i) => {
       const group = svg
@@ -140,13 +163,13 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         .attr("y", y)
         .text(sec.label)
         .style("fill", textColor)
-        .style("font-size", "0.9em")
+        .style("font-size", "13px")
         .style("font-weight", "600");
 
-      y += 8;
+      y += 6;
 
-      const barWidth = width - 100;
-      const barHeight = 12;
+      const barWidth = width - margin.left - margin.right - 50;
+      const barHeight = 14;
 
       group
         .append("rect")
@@ -175,11 +198,12 @@ export default function PatientLogistic({ patientNumber = 1 }) {
 
       group
         .append("text")
-        .attr("x", width - 40)
-        .attr("y", y + 10)
+        .attr("x", width - margin.right)
+        .attr("y", y + 11)
+        .attr("text-anchor", "end")
         .text(`${Math.round(sec.progress * 100)}%`)
         .style("fill", textColor)
-        .style("font-size", "0.8em")
+        .style("font-size", "12px")
         .style("font-weight", "500");
 
       // Hover Glow and Tooltip
@@ -222,11 +246,13 @@ export default function PatientLogistic({ patientNumber = 1 }) {
             .style("opacity", 0);
         });
 
-      y += 32;
+      y += sectionSpacing;
     });
 
-    // Set SVG dimensions
-    svg.attr("width", width).attr("height", y + 10);
+    // Set SVG dimensions to exactly match container
+    svg.attr("width", width)
+      .attr("height", height)
+      .style("overflow", "hidden");
 
     // Cleanup function
     return () => {
@@ -244,8 +270,10 @@ export default function PatientLogistic({ patientNumber = 1 }) {
           svg.selectAll("*").remove();
 
           const containerWidth = container.clientWidth || 400;
-          const width = Math.max(containerWidth - 40, 300);
-          const margin = { top: 25, left: 20 };
+          const containerHeight = container.clientHeight || 400;
+          const width = containerWidth;
+          const height = containerHeight;
+          const margin = { top: 15, left: 12, right: 12, bottom: 12 };
           const textColor = "#e2e8f0";
 
           const colors = {
@@ -319,19 +347,7 @@ export default function PatientLogistic({ patientNumber = 1 }) {
             grad.append("stop").attr("offset", "100%").attr("stop-color", g.to);
           });
 
-          let y = margin.top;
-          svg
-            .append("text")
-            .attr("x", margin.left)
-            .attr("y", y)
-            .text("🧾 Patient Logistics & Education")
-            .style("fill", "#fcfcfcff")
-            .style("font-size", "1em")
-            .style("font-weight", "700");
-
-          y += 35;
-
-          // Create or get tooltip element
+          // Create or get tooltip element first
           let tooltip = d3.select("body").select(".logistic-tooltip");
           if (tooltip.empty()) {
             tooltip = d3.select("body")
@@ -342,6 +358,40 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               .style("pointer-events", "none")
               .style("z-index", 10001);
           }
+
+          // Calculate title height
+          const titleHeight = 20; // Title text height
+          const titleMargin = 12; // Space after title
+          
+          // --- Render Title ---
+          let y = margin.top;
+          svg
+            .append("text")
+            .attr("x", margin.left)
+            .attr("y", y)
+            .text("🧾 Patient Logistics & Education")
+            .style("fill", "#fcfcfcff")
+            .style("font-size", "15px")
+            .style("font-weight", "700");
+
+          y += titleHeight + titleMargin;
+
+          // Calculate available height for sections
+          const sectionAreaTop = y;
+          const sectionAreaBottom = height - margin.bottom;
+          const availableHeightForSections = sectionAreaBottom - sectionAreaTop;
+          
+          // Calculate spacing - each section needs space for label (6px) + gap (6px) + bar (14px) + spacing
+          const sectionCount = sections.length;
+          const minSectionHeight = 28; // Minimum: label(6) + gap(6) + bar(14) + spacing(2)
+          const maxSectionHeight = 40;
+          
+          // Calculate optimal spacing to fill available height
+          let sectionHeight = availableHeightForSections / sectionCount;
+          sectionHeight = Math.max(minSectionHeight, Math.min(maxSectionHeight, sectionHeight));
+          
+          // Adjust spacing based on calculated section height
+          const sectionSpacing = sectionHeight;
 
           sections.forEach((sec, i) => {
             const group = svg
@@ -355,13 +405,13 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               .attr("y", y)
               .text(sec.label)
               .style("fill", textColor)
-              .style("font-size", "0.9em")
+              .style("font-size", "13px")
               .style("font-weight", "600");
 
-            y += 8;
+            y += 6;
 
-            const barWidth = width - 100;
-            const barHeight = 12;
+            const barWidth = width - margin.left - margin.right - 50;
+            const barHeight = 14;
 
             group
               .append("rect")
@@ -390,11 +440,12 @@ export default function PatientLogistic({ patientNumber = 1 }) {
 
             group
               .append("text")
-              .attr("x", width - 40)
-              .attr("y", y + 10)
+              .attr("x", width - margin.right)
+              .attr("y", y + 11)
+              .attr("text-anchor", "end")
               .text(`${Math.round(sec.progress * 100)}%`)
               .style("fill", textColor)
-              .style("font-size", "0.8em")
+              .style("font-size", "12px")
               .style("font-weight", "500");
 
             // Hover Glow and Tooltip
@@ -437,10 +488,13 @@ export default function PatientLogistic({ patientNumber = 1 }) {
                   .style("opacity", 0);
               });
 
-            y += 32;
+            y += sectionSpacing;
           });
 
-          svg.attr("width", width).attr("height", y + 10);
+          // Set SVG dimensions to exactly match container
+          svg.attr("width", width)
+            .attr("height", height)
+            .style("overflow", "hidden");
         }
       }
     };
@@ -497,82 +551,11 @@ export default function PatientLogistic({ patientNumber = 1 }) {
 
   const modal = getModalContent();
 
-  // Dummy upcoming appointments data
-  const upcomingAppointments = [
-    {
-      id: 1,
-      type: "Wound Care Clinic",
-      date: "5/12/2024",
-      time: "10:00 AM",
-      location: "Main Hospital - 3rd Floor",
-      provider: "Dr. Sarah Chen",
-      status: "confirmed"
-    },
-    {
-      id: 2,
-      type: "Physical Therapy",
-      date: "5/14/2024",
-      time: "2:30 PM",
-      location: "Rehabilitation Center",
-      provider: "PT John Martinez",
-      status: "confirmed"
-    },
-    {
-      id: 3,
-      type: "Primary Care Follow-up",
-      date: "5/18/2024",
-      time: "11:15 AM",
-      location: "Primary Care Clinic",
-      provider: "Dr. Michael Thompson",
-      status: "pending"
-    },
-    {
-      id: 4,
-      type: "Audiology Consultation",
-      date: "5/20/2024",
-      time: "9:00 AM",
-      location: "Hearing Center",
-      provider: "Dr. Emily Rodriguez",
-      status: "pending"
-    }
-  ];
-
   return (
     <>
       <div className="patient-logistic-container">
         <div className="logistic-svg-container">
           <svg ref={ref}></svg>
-        </div>
-        
-        {/* Upcoming Appointments Section */}
-        <div className="appointments-section">
-          <h3 className="appointments-title">📅 Upcoming Appointments</h3>
-          <div className="appointments-list">
-            {upcomingAppointments.map((appt) => (
-              <div key={appt.id} className="appointment-card">
-                <div className="appointment-header">
-                  <span className="appointment-type">{appt.type}</span>
-                  <span className={`appointment-status appointment-status-${appt.status}`}>
-                    {appt.status === "confirmed" ? "✓ Confirmed" : "⏳ Pending"}
-                  </span>
-                </div>
-                <div className="appointment-details">
-                  <div className="appointment-detail-item">
-                    <span className="appointment-icon">📆</span>
-                    <span>{appt.date} at {appt.time}</span>
-                  </div>
-                  <div className="appointment-detail-item">
-                    <span className="appointment-icon">📍</span>
-                    <span>{appt.location}</span>
-                  </div>
-                  <div className="appointment-detail-item">
-                    <span className="appointment-icon">👤</span>
-                    <span>{appt.provider}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 

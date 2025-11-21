@@ -64,16 +64,22 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
     const container = containerRef.current;
     d3.select(container).selectAll("svg").remove();
 
-    const width = container.clientWidth || 600;
-    const height = Math.min(container.clientHeight || 430, 420);
-    const margin = { top: 90, right: 50, bottom: 80, left: 90 };
-    const radius = Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom) / 2;
+    const width = container.clientWidth || 400;
+    const height = container.clientHeight || 400;
+    // Increase left margin to accommodate time point selector buttons
+    const margin = { top: 50, right: 30, bottom: 70, left: 100 };
+    const availableWidth = width - margin.left - margin.right;
+    const availableHeight = height - margin.top - margin.bottom;
+    const radius = Math.min(availableWidth, availableHeight) / 2;
 
     const svg = d3
       .select(container)
       .append("svg")
       .attr("width", width)
-      .attr("height", height);
+      .attr("height", height)
+      .attr("viewBox", `0 0 ${width} ${height}`)
+      .attr("preserveAspectRatio", "xMidYMid meet")
+      .style("overflow", "hidden");
 
     const g = svg
       .append("g")
@@ -83,22 +89,22 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", 22)
+      .attr("y", 18)
       .attr("text-anchor", "middle")
-      .attr("font-size", "16px")
+      .attr("font-size", "18px")
       .attr("font-weight", "600")
       .attr("fill", "#f1f5f9")
       .text("Readiness Radar Chart");
 
     // Subtitle
-    svg
-      .append("text")
-      .attr("x", width / 2)
-      .attr("y", 38)
-      .attr("text-anchor", "middle")
-      .attr("font-size", "11px")
-      .attr("fill", "#94a3b8")
-      .text("All domains (0-3 scale)");
+    // svg
+    //   .append("text")
+    //   .attr("x", width / 2)
+    //   .attr("y", 32)
+    //   .attr("text-anchor", "middle")
+    //   .attr("font-size", "9px")
+    //   .attr("fill", "#94a3b8")
+    //   .text("All domains (0-3 scale)");
 
     // Color scale for different time points
     const colors = {
@@ -174,7 +180,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         .attr("stroke-width", 1);
 
       // Domain labels
-      const labelDistance = radius + 18;
+      const labelDistance = radius + 12;
       const labelX = Math.cos(angle) * labelDistance;
       const labelY = Math.sin(angle) * labelDistance;
 
@@ -183,7 +189,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         .attr("y", labelY)
         .attr("text-anchor", labelX > 0 ? "start" : labelX < 0 ? "end" : "middle")
         .attr("alignment-baseline", labelY > 0 ? "text-before-edge" : "text-after-edge")
-        .attr("font-size", "11px")
+        .attr("font-size", "9px")
         .attr("font-weight", "600")
         .attr("fill", "#e2e8f0")
         .attr("cursor", "pointer")
@@ -239,7 +245,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
     });
 
     // Function to draw radar polygon
-    const drawRadarPolygon = (data, color, opacity = 0.7, strokeWidth = 2, label = "", date = "") => {
+    const drawRadarPolygon = (data, color, opacity = 0.7, strokeWidth = 2, label = "", date = "", tooltipRef = tooltip) => {
       // Build points array in the exact order of domains to match axis positions
       const points = [];
       for (let i = 0; i < domains.length; i++) {
@@ -276,7 +282,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
           const maxScore = Math.max(...points).toFixed(1);
           const minScore = Math.min(...points).toFixed(1);
           
-          tooltip
+          tooltipRef
             .html(`
               <div class="tooltip-header">${label || "Readiness Status"}${date ? ` - ${date}` : ""}</div>
               <div class="tooltip-content">
@@ -300,7 +306,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
             .attr("fill-opacity", opacity)
             .attr("stroke-width", strokeWidth);
           
-          tooltip
+          tooltipRef
             .transition()
             .duration(200)
             .style("opacity", 0);
@@ -329,7 +335,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
               .attr("r", 6)
               .attr("stroke-width", 3);
             
-            tooltip
+            tooltipRef
               .html(`
                 <div class="tooltip-header">${domainLabels[domain]}</div>
                 <div class="tooltip-content">
@@ -349,7 +355,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
               .attr("r", 4)
               .attr("stroke-width", 2);
             
-            tooltip
+            tooltipRef
               .transition()
               .duration(200)
               .style("opacity", 0);
@@ -429,7 +435,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
     // Legend
     const legend = svg
       .append("g")
-      .attr("transform", `translate(${width - 120}, ${height - 80})`);
+      .attr("transform", `translate(${width - 100}, ${height - 60})`);
 
     if (selectedTimePoint === "all") {
       const legendData = [
@@ -439,17 +445,17 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
       ];
 
       legendData.forEach((item, i) => {
-        const lg = legend.append("g").attr("transform", `translate(0, ${i * 18})`);
+        const lg = legend.append("g").attr("transform", `translate(0, ${i * 14})`);
         lg.append("rect")
-          .attr("width", 12)
-          .attr("height", 12)
+          .attr("width", 10)
+          .attr("height", 10)
           .attr("rx", 2)
           .attr("fill", item.color)
           .attr("opacity", 0.8);
         lg.append("text")
-          .attr("x", 18)
-          .attr("y", 10)
-          .attr("font-size", "10px")
+          .attr("x", 15)
+          .attr("y", 8)
+          .attr("font-size", "9px")
           .attr("fill", "#e2e8f0")
           .text(item.label);
       });
@@ -475,10 +481,10 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         .text(item.label);
     }
 
-    // Time point selector
+    // Time point selector - positioned on the left side, vertically centered
     if (grid.length > 1) {
-      const selectorY = height - 25;
-      const selectorX = width / 2;
+      const selectorX = 15; // Left side position
+      const selectorY = height / 2; // Vertically centered
       const selector = svg
         .append("g")
         .attr("transform", `translate(${selectorX}, ${selectorY})`);
@@ -491,17 +497,17 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
       ];
 
       options.forEach((option, i) => {
-        // Center the buttons: 4 buttons, so i goes from 0-3, translate by (i - 1.5) * 60
+        // Stack buttons vertically: 4 buttons, translate by i * 30
         const optGroup = selector
           .append("g")
-          .attr("transform", `translate(${(i - 1.7) * 60}, 0)`)
+          .attr("transform", `translate(0, ${(i - 1.5) * 30})`)
           .style("cursor", "pointer");
 
         const isSelected = selectedTimePoint === option.value;
         optGroup
           .append("rect")
           .attr("width", 50)
-          .attr("height", 20)
+          .attr("height", 22)
           .attr("rx", 4)
           .attr("fill", isSelected ? "#3b82f6" : "rgba(255, 255, 255, 0.1)")
           .attr("stroke", isSelected ? "#60a5fa" : "rgba(255, 255, 255, 0.2)")
@@ -510,9 +516,9 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         optGroup
           .append("text")
           .attr("x", 25)
-          .attr("y", 13)
+          .attr("y", 14)
           .attr("text-anchor", "middle")
-          .attr("font-size", "10px")
+          .attr("font-size", "9px")
           .attr("font-weight", isSelected ? "600" : "500")
           .attr("fill", isSelected ? "#fff" : "#94a3b8")
           .text(option.label);
@@ -535,12 +541,12 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
       });
     }
 
+    svgRef.current = svg;
+
     // Cleanup function
     return () => {
       d3.select("body").selectAll(".radar-tooltip").remove();
     };
-
-    svgRef.current = svg;
   }, [radarData, loading, selectedTimePoint, grid.length]);
 
   // Handle resize

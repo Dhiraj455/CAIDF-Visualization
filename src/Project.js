@@ -35,34 +35,24 @@ export default function Project() {
       </nav>
 
       {/* 🩺 Main Content */}
-      <div className="main-content-flex">
-        {/* 👤 Left Column - Stacked Panels */}
-        <div className="left-column">
-          {/* Upper Left: Patient Info */}
-          <div className="left-panel-item left-panel-info">
-            <PatientInfo patientNumber={patientNumber} />
-          </div>
-
-          {/* Lower Left: Readiness Radar Chart */}
-          <div className="left-panel-item left-panel-heatmap">
-            <ReadinessRadarChart patientNumber={patientNumber} />
-          </div>
+      {/* Top Row: Patient Info (left) and Patient Timeline (right) */}
+      <div className="top-section">
+        <div className="top-panel-item top-panel-info">
+          <PatientInfo patientNumber={patientNumber} />
         </div>
-
-        {/* 💡 Center Visualization - Large Main Panel */}
-        <div className="center-visualization">
+        <div className="top-panel-item top-panel-timeline">
           <PatientTimeLine patientNumber={patientNumber} />
         </div>
       </div>
 
-      {/* 📊 Bottom Section - Additional Visualizations */}
+      {/* Bottom Row: Radar Chart (30%), Risk Trend (40%), Patient Logistic (30%) */}
       <div className="bottom-section">
-        {/* Risk Trend Graph */}
+        <div className="bottom-panel-item bottom-panel-radar">
+          <ReadinessRadarChart patientNumber={patientNumber} />
+        </div>
         <div className="bottom-panel-item bottom-panel-risk">
           <RiskTrendGraph patientNumber={patientNumber} />
         </div>
-
-        {/* Medication + Care Links */}
         <div className="bottom-panel-item bottom-panel-logistic">
           <PatientLogistic patientNumber={patientNumber} />
         </div>
