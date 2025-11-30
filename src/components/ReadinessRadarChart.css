@@ -1,93 +1,133 @@
+/* Readiness Radar Chart - Enhanced for laptop screens */
+
 .readiness-radar-container {
   width: 100%;
   height: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  min-height: 0;
   position: relative;
   box-sizing: border-box;
+  background: transparent;
+  min-width: 0;
+  min-height: 0;
+  /* Ensure chart has room to breathe */
+  padding: 4px;
 }
 
 .readiness-radar-container svg {
-  max-width: 100%;
-  max-height: 100%;
   width: 100%;
   height: 100%;
+  max-width: 100%;
+  max-height: 100%;
   display: block;
+  background: transparent;
 }
 
 .readiness-radar-loading,
 .readiness-radar-error {
   width: 100%;
-  font-family: 'Poppins', sans-serif;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
-/* Radar Chart Tooltip */
-.radar-tooltip {
-  background: linear-gradient(160deg, #1e293b, #0f172a);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  padding: 12px 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  font-family: 'Poppins', sans-serif;
+/* ========================================
+   RADAR CHART LABELS & LEGEND
+   Enhanced readability for laptop screens
+   ======================================== */
+
+/* Axis labels around the chart */
+.radar-chart-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #34495e;
+  fill: #34495e;
+}
+
+/* Legend labels */
+.radar-legend-label {
   font-size: 0.85rem;
-  max-width: 280px;
+  font-weight: 600;
+  fill: #4B5563;
+}
+
+/* Legend container - positioned to not overflow */
+.radar-legend {
+  margin-top: 8px;
+}
+
+/* Radar Chart Tooltip - Enhanced */
+.radar-tooltip {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  box-shadow: var(--card-shadow);
+  font-family: system-ui, sans-serif;
+  font-size: 0.82rem;
+  max-width: 240px;
   pointer-events: none;
   z-index: 10001;
 }
 
 .radar-tooltip .tooltip-header {
-  color: #93c5fd;
+  color: var(--accent-blue);
   font-weight: 700;
-  font-size: 0.95rem;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .radar-tooltip .tooltip-content {
-  color: #e2e8f0;
-  line-height: 1.6;
+  color: var(--text-main);
+  line-height: 1.5;
 }
 
 .radar-tooltip .tooltip-metric {
-  margin: 4px 0;
-  font-size: 0.9rem;
+  margin: 3px 0;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
 .radar-tooltip .tooltip-content strong {
-  color: #60a5fa;
+  color: var(--accent-blue);
   font-weight: 700;
 }
 
 .radar-tooltip .tooltip-desc {
-  font-size: 0.8rem;
-  color: #cbd5e1;
-  margin-top: 6px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 5px;
   font-style: italic;
   line-height: 1.4;
 }
 
 .radar-tooltip .tooltip-time {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid var(--card-border);
 }
 
 .radar-tooltip .tooltip-scores {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.75rem;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--card-border);
+  font-size: 0.72rem;
 }
 
 .radar-tooltip .tooltip-scores div {
-  margin: 4px 0;
-  color: #cbd5e1;
+  margin: 3px 0;
+  color: var(--text-muted);
   display: flex;
   justify-content: space-between;
 }
@@ -95,4 +135,67 @@
 .radar-tooltip .tooltip-scores strong {
   color: #10b981;
   margin-left: 8px;
+  font-weight: 700;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 1599px) and (min-width: 1280px) {
+  .readiness-radar-container {
+    padding: 2px;
+  }
+
+  .radar-chart-label {
+    font-size: 0.85rem;
+  }
+
+  .radar-legend-label {
+    font-size: 0.8rem;
+  }
+
+  .radar-tooltip {
+    font-size: 0.78rem;
+    max-width: 220px;
+    padding: 8px 12px;
+  }
+
+  .radar-tooltip .tooltip-header {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 1279px) and (min-width: 1024px) {
+  .readiness-radar-container {
+    padding: 2px;
+  }
+
+  .radar-chart-label {
+    font-size: 0.8rem;
+  }
+
+  .radar-legend-label {
+    font-size: 0.75rem;
+  }
+
+  .radar-tooltip {
+    font-size: 0.75rem;
+    max-width: 200px;
+    padding: 7px 10px;
+  }
+
+  .radar-tooltip .tooltip-header {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 1023px) {
+  .radar-chart-label {
+    font-size: 0.85rem;
+  }
+
+  .radar-legend-label {
+    font-size: 0.8rem;
+  }
 }

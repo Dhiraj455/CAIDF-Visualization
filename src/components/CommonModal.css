@@ -1,13 +1,15 @@
 .common-modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 10000;
   animation: fadeIn 0.3s ease-out;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 @keyframes fadeIn {
@@ -20,18 +22,19 @@
 }
 
 .common-modal-content {
-  background: linear-gradient(160deg, #1e293b, #0f172a);
-  padding: 30px;
-  border-radius: 16px;
-  max-width: 600px;
+  background: var(--card-bg);
+  padding: clamp(20px, 3vw, 30px);
+  border-radius: var(--card-radius);
   width: 90%;
+  max-width: 600px;
   max-height: 80vh;
-  color: #f1f5f9;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  color: var(--text-main);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
   text-align: left;
   animation: slideUp 0.4s ease;
   overflow-y: auto;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
 }
 
 @keyframes slideUp {
@@ -46,48 +49,47 @@
 }
 
 .common-modal-title {
-  color: #93c5fd;
-  margin: 0 0 20px 0;
+  color: var(--accent-blue);
+  margin: 0 0 16px 0;
   text-align: center;
-  font-size: 22px;
+  font-size: clamp(18px, 2.5vw, 22px);
   font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--card-border);
 }
 
 .common-modal-empty {
-  padding: 30px;
+  padding: 24px;
   text-align: center;
-  color: #94a3b8;
-  font-size: 14px;
+  color: var(--text-muted);
+  font-size: clamp(12px, 1.5vw, 14px);
 }
 
 .common-modal-close-container {
   text-align: center;
-  margin-top: 25px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--card-border);
 }
 
 .common-modal-close-button {
-  background: linear-gradient(90deg, #3b82f6, #6366f1, #8b5cf6);
+  background: var(--accent-blue);
   border: none;
   padding: 6px 24px;
   border-radius: 8px;
   color: white;
   font-weight: 600;
-  font-size: 14px;
+  font-size: clamp(12px, 1.5vw, 14px);
   cursor: pointer;
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .common-modal-close-button:hover {
-  box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+  background: #1D4ED8;
   transform: translateY(-2px);
 }
 
@@ -97,26 +99,26 @@
 
 /* List styling */
 .common-modal-list {
-  line-height: 1.8em;
-  font-size: 0.95em;
+  line-height: 1.7em;
+  font-size: clamp(0.85em, 1.2vw, 0.95em);
   padding: 0 0 0 20px;
   list-style: disc;
   margin: 0;
-  color: #e2e8f0;
+  color: var(--text-main);
 }
 
 .common-modal-list-item {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   text-align: left;
 }
 
 .common-modal-label {
-  color: #93c5fd;
+  color: var(--accent-blue);
   font-weight: 600;
 }
 
 .common-modal-status-icon {
-  margin-right: 10px;
+  margin-right: 8px;
   font-size: 1.1em;
 }
 
@@ -130,20 +132,36 @@
 
 /* Scrollbar styling for modal content */
 .common-modal-content::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 .common-modal-content::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: #F3F4F6;
+  border-radius: 3px;
 }
 
 .common-modal-content::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background: #D1D5DB;
+  border-radius: 3px;
 }
 
 .common-modal-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #9CA3AF;
 }
 
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .common-modal-content {
+    width: 95%;
+    padding: 16px;
+  }
+
+  .common-modal-list {
+    padding-left: 16px;
+  }
+
+  .common-modal-title {
+    font-size: 16px;
+    flex-wrap: wrap;
+  }
+}

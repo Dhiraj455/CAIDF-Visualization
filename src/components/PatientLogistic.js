@@ -32,7 +32,6 @@ export default function PatientLogistic({ patientNumber = 1 }) {
     const width = containerWidth;
     const height = containerHeight;
     const margin = { top: 15, left: 12, right: 12, bottom: 12 };
-    const textColor = "#e2e8f0";
 
     const colors = {
       Education: "url(#gradEdu)",
@@ -89,10 +88,10 @@ export default function PatientLogistic({ patientNumber = 1 }) {
     const defs = svg.append("defs");
 
     const gradients = [
-      { id: "gradEdu", from: "#60a5fa", to: "#3b82f6" },
-      { id: "gradMed", from: "#34d399", to: "#059669" },
-      { id: "gradCare", from: "#f472b6", to: "#db2777" },
-      { id: "gradFollow", from: "#facc15", to: "#eab308" },
+      { id: "gradEdu", from: "#60A5FA", to: "#2563EB" }, // Blue gradient - light to dark
+      { id: "gradMed", from: "#A78BFA", to: "#8B5CF6" }, // Purple gradient - light to dark
+      { id: "gradCare", from: "#F472B6", to: "#EC4899" }, // Pink gradient - light to dark
+      { id: "gradFollow", from: "#FBBF24", to: "#F59E0B" }, // Amber gradient - light to dark
     ];
 
     gradients.forEach((g) => {
@@ -120,35 +119,42 @@ export default function PatientLogistic({ patientNumber = 1 }) {
     const titleHeight = 20; // Title text height
     const titleMargin = 12; // Space after title
     
-    // --- Render Title ---
-    let y = margin.top;
+    // --- Render Title at top - centered and standardized ---
+    const titleFontSize = containerWidth < 600 ? "14px" : 
+                         containerWidth < 900 ? "16px" : "18px";
+    
     svg
       .append("text")
-      .attr("x", margin.left)
-      .attr("y", y)
-      .text("🧾 Patient Logistics & Education")
-      .style("fill", "#fcfcfcff")
-      .style("font-size", "15px")
-      .style("font-weight", "700");
+      .attr("x", width / 2)
+      .attr("y", 20)
+      .attr("text-anchor", "middle")
+      .attr("font-size", titleFontSize)
+      .attr("font-weight", "600")
+      .attr("fill", "#111827")
+      .text("Patient Logistics & Education");
 
-    y += titleHeight + titleMargin;
-
-    // Calculate available height for sections
-    const sectionAreaTop = y;
+    // Calculate available height for sections (excluding title)
+    // Title is at y=20, so title area ends at y=20 + titleHeight + titleMargin
+    const titleAreaHeight = 20 + titleHeight + titleMargin;
+    const sectionAreaTop = titleAreaHeight;
     const sectionAreaBottom = height - margin.bottom;
     const availableHeightForSections = sectionAreaBottom - sectionAreaTop;
     
-    // Calculate spacing - each section needs space for label (6px) + gap (6px) + bar (14px) + spacing
+    // Calculate total height needed for all sections
     const sectionCount = sections.length;
-    const minSectionHeight = 28; // Minimum: label(6) + gap(6) + bar(14) + spacing(2)
-    const maxSectionHeight = 40;
+    const labelHeight = 6; // Height for label text
+    const gapAfterLabel = 6; // Gap between label and bar
+    const barHeight = 14; // Height of progress bar
+    // Calculate spacing to fill available height - distribute evenly
+    const sectionSpacing = 18;
+    const totalSectionHeight = sectionCount * (labelHeight + gapAfterLabel + barHeight) + (sectionCount - 1) * sectionSpacing;
     
-    // Calculate optimal spacing to fill available height
-    let sectionHeight = availableHeightForSections / sectionCount;
-    sectionHeight = Math.max(minSectionHeight, Math.min(maxSectionHeight, sectionHeight));
+    // Position sections above center, closer to title but still visually balanced
+    // Use 30% offset from top instead of 50% (center) to position higher
+    const verticalOffset = (availableHeightForSections - totalSectionHeight) * 0.3;
+    const startY = sectionAreaTop + verticalOffset;
     
-    // Adjust spacing based on calculated section height
-    const sectionSpacing = sectionHeight;
+    let y = startY;
     
     // --- Render Progress Bars ---
     sections.forEach((sec, i) => {
@@ -162,9 +168,9 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         .attr("x", margin.left)
         .attr("y", y)
         .text(sec.label)
-        .style("fill", textColor)
-        .style("font-size", "13px")
-        .style("font-weight", "600");
+        .style("fill", "#111827")
+        .style("font-size", "15px")
+        .style("font-weight", "700");
 
       y += 6;
 
@@ -178,7 +184,10 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         .attr("width", barWidth)
         .attr("height", barHeight)
         .attr("rx", 6)
-        .style("fill", "rgba(255,255,255,0.08)");
+        .style("fill", "rgba(255,255,255,0.08)")
+        .style("stroke", "rgba(0,0,0,0.12)")
+        .style("stroke-width", 1)
+        .style("stroke-opacity", 0.5);
 
       const bar = group
         .append("rect")
@@ -202,9 +211,9 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         .attr("y", y + 11)
         .attr("text-anchor", "end")
         .text(`${Math.round(sec.progress * 100)}%`)
-        .style("fill", textColor)
-        .style("font-size", "12px")
-        .style("font-weight", "500");
+        .style("fill", "#111827")
+        .style("font-size", "14px")
+        .style("font-weight", "600");
 
       // Hover Glow and Tooltip
       group
@@ -246,7 +255,7 @@ export default function PatientLogistic({ patientNumber = 1 }) {
             .style("opacity", 0);
         });
 
-      y += sectionSpacing;
+      y += labelHeight + gapAfterLabel + barHeight + sectionSpacing;
     });
 
     // Set SVG dimensions to exactly match container
@@ -274,7 +283,6 @@ export default function PatientLogistic({ patientNumber = 1 }) {
           const width = containerWidth;
           const height = containerHeight;
           const margin = { top: 15, left: 12, right: 12, bottom: 12 };
-          const textColor = "#e2e8f0";
 
           const colors = {
             Education: "url(#gradEdu)",
@@ -329,10 +337,10 @@ export default function PatientLogistic({ patientNumber = 1 }) {
 
           const defs = svg.append("defs");
           const gradients = [
-            { id: "gradEdu", from: "#60a5fa", to: "#3b82f6" },
-            { id: "gradMed", from: "#34d399", to: "#059669" },
-            { id: "gradCare", from: "#f472b6", to: "#db2777" },
-            { id: "gradFollow", from: "#facc15", to: "#eab308" },
+            { id: "gradEdu", from: "#60A5FA", to: "#2563EB" }, // Blue gradient - light to dark
+            { id: "gradMed", from: "#A78BFA", to: "#8B5CF6" }, // Purple gradient - light to dark
+            { id: "gradCare", from: "#F472B6", to: "#EC4899" }, // Pink gradient - light to dark
+            { id: "gradFollow", from: "#FBBF24", to: "#F59E0B" }, // Amber gradient - light to dark
           ];
 
           gradients.forEach((g) => {
@@ -359,39 +367,46 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               .style("z-index", 10001);
           }
 
-          // Calculate title height
-          const titleHeight = 20; // Title text height
-          const titleMargin = 12; // Space after title
-          
-          // --- Render Title ---
-          let y = margin.top;
-          svg
-            .append("text")
-            .attr("x", margin.left)
-            .attr("y", y)
-            .text("🧾 Patient Logistics & Education")
-            .style("fill", "#fcfcfcff")
-            .style("font-size", "15px")
-            .style("font-weight", "700");
+           // Calculate title height
+           const titleHeight = 20; // Title text height
+           const titleMargin = 12; // Space after title
+           
+           // --- Render Title at top - centered and standardized ---
+           const titleFontSize = containerWidth < 600 ? "14px" : 
+                                containerWidth < 900 ? "16px" : "18px";
+           
+           svg
+             .append("text")
+             .attr("x", width / 2)
+             .attr("y", 20)
+             .attr("text-anchor", "middle")
+             .attr("font-size", titleFontSize)
+             .attr("font-weight", "600")
+             .attr("fill", "#111827")
+             .text("Patient Logistics & Education");
 
-          y += titleHeight + titleMargin;
-
-          // Calculate available height for sections
-          const sectionAreaTop = y;
+           // Calculate available height for sections (excluding title)
+           // Title is at y=20, so title area ends at y=20 + titleHeight + titleMargin
+           const titleAreaHeight = 20 + titleHeight + titleMargin;
+           const sectionAreaTop = titleAreaHeight;
           const sectionAreaBottom = height - margin.bottom;
           const availableHeightForSections = sectionAreaBottom - sectionAreaTop;
           
-          // Calculate spacing - each section needs space for label (6px) + gap (6px) + bar (14px) + spacing
-          const sectionCount = sections.length;
-          const minSectionHeight = 28; // Minimum: label(6) + gap(6) + bar(14) + spacing(2)
-          const maxSectionHeight = 40;
+           // Calculate total height needed for all sections
+           const sectionCount = sections.length;
+           const labelHeight = 6; // Height for label text
+           const gapAfterLabel = 6; // Gap between label and bar
+           const barHeight = 14; // Height of progress bar
+           // Calculate spacing to fill available height - distribute evenly
+           const sectionSpacing = 18;
+           const totalSectionHeight = sectionCount * (labelHeight + gapAfterLabel + barHeight) + (sectionCount - 1) * sectionSpacing;
+           
+           // Position sections above center, closer to title but still visually balanced
+           // Use 30% offset from top instead of 50% (center) to position higher
+           const verticalOffset = (availableHeightForSections - totalSectionHeight) * 0.3;
+           const startY = sectionAreaTop + verticalOffset;
           
-          // Calculate optimal spacing to fill available height
-          let sectionHeight = availableHeightForSections / sectionCount;
-          sectionHeight = Math.max(minSectionHeight, Math.min(maxSectionHeight, sectionHeight));
-          
-          // Adjust spacing based on calculated section height
-          const sectionSpacing = sectionHeight;
+          let y = startY;
 
           sections.forEach((sec, i) => {
             const group = svg
@@ -404,9 +419,9 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               .attr("x", margin.left)
               .attr("y", y)
               .text(sec.label)
-              .style("fill", textColor)
-              .style("font-size", "13px")
-              .style("font-weight", "600");
+              .style("fill", "#111827")
+              .style("font-size", "15px")
+              .style("font-weight", "700");
 
             y += 6;
 
@@ -420,7 +435,10 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               .attr("width", barWidth)
               .attr("height", barHeight)
               .attr("rx", 6)
-              .style("fill", "rgba(255,255,255,0.08)");
+              .style("fill", "rgba(255,255,255,0.08)")
+              .style("stroke", "rgba(0,0,0,0.12)")
+              .style("stroke-width", 1)
+              .style("stroke-opacity", 1);
 
             const bar = group
               .append("rect")
@@ -444,9 +462,9 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               .attr("y", y + 11)
               .attr("text-anchor", "end")
               .text(`${Math.round(sec.progress * 100)}%`)
-              .style("fill", textColor)
-              .style("font-size", "12px")
-              .style("font-weight", "500");
+              .style("fill", "#111827")
+              .style("font-size", "14px")
+              .style("font-weight", "600");
 
             // Hover Glow and Tooltip
             group
@@ -488,7 +506,7 @@ export default function PatientLogistic({ patientNumber = 1 }) {
                   .style("opacity", 0);
               });
 
-            y += sectionSpacing;
+            y += labelHeight + gapAfterLabel + barHeight + sectionSpacing;
           });
 
           // Set SVG dimensions to exactly match container

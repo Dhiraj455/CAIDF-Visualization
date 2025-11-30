@@ -1,187 +1,205 @@
 .testing-page {
-  font-family: 'Poppins', sans-serif;
-  background: radial-gradient(circle at 20% 20%, #0f172a 0%, #1e293b 60%, #0a0a0a 100%);
-  color: #f1f5f9;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--page-bg);
+  color: #1F2937;
   position: relative;
   overflow-x: hidden;
   min-height: 100vh;
   line-height: 1.6;
-}
-
-@keyframes pulse {
-  from {
-    opacity: 0.5;
-  }
-  to {
-    opacity: 1;
-  }
+  box-sizing: border-box;
 }
 
 .testing-page-content {
   z-index: 2;
-  padding: clamp(30px, 4vw, 60px) clamp(20px, 3vw, 40px);
+  padding: clamp(16px, 3vw, 24px) clamp(16px, 4vw, 40px);
   max-width: 1200px;
-  margin: 0;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .testing-page h1 {
-  color: #93c5fd;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
+  color: #1D4ED8;
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+  margin: 8px 0 12px;
   font-weight: 700;
 }
 
 .testing-page h2 {
-  color: #60a5fa;
-  font-size: 1.5rem;
-  margin-top: 30px;
-  margin-bottom: 15px;
-  font-weight: 600;
+  color: #1D4ED8;
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  margin: 12px 0 8px;
+  font-weight: 700;
 }
 
 .testing-page p {
-  font-size: 1.1rem;
-  margin-bottom: 20px;
-  color: #e2e8f0;
+  font-size: clamp(0.95rem, 1.5vw, 1.1rem);
+  margin-bottom: 12px;
+  color: var(--text-main);
 }
 
 .testing-page ul {
   margin-left: 20px;
-  margin-bottom: 20px;
-  color: #cbd5e1;
+  margin-bottom: 12px;
+  color: #4B5563;
 }
 
 .testing-page ul ul {
-  margin-top: 10px;
+  margin-top: 6px;
+  margin-bottom: 6px;
   margin-left: 20px;
+  color: #4B5563;
 }
 
 .testing-page li {
-  margin-bottom: 10px;
-  font-size: 1rem;
+  margin-bottom: 6px;
+  font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+  color: #374151;
 }
 
 .testing-page strong {
-  color: #93c5fd;
+  color: #1D4ED8;
   font-weight: 600;
 }
 
 .testing-page em {
-  color: #fbbf24;
+  color: #CA8A04;
   font-style: italic;
 }
 
 .testing-note {
-  background: rgba(59, 130, 246, 0.1);
-  border-left: 4px solid #3b82f6;
-  padding: 15px 20px;
-  margin-top: 30px;
+  background: rgba(29, 78, 216, 0.08);
+  border-left: 4px solid #1D4ED8;
+  padding: clamp(12px, 2vw, 15px) clamp(16px, 2.5vw, 20px);
+  margin-top: 16px;
+  margin-bottom: 12px;
   border-radius: 8px;
-  color: #bfdbfe;
+  color: #1D4ED8;
+  font-weight: 600;
   font-style: italic;
+  font-size: clamp(0.9rem, 1.3vw, 1rem);
 }
 
 .patient-selection {
-  border-top: 2px solid rgba(255, 255, 255, 0.1);
+  border-top: 2px solid var(--card-border);
+  margin-top: 16px;
+  padding-top: 12px;
 }
 
 .patient-selection h2 {
-  color: #93c5fd;
+  color: #1D4ED8;
+  margin-top: 0;
+  margin-bottom: 12px;
 }
 
 .patient-buttons {
   display: flex;
-  gap: 25px;
+  flex-wrap: wrap;
+  gap: clamp(16px, 3vw, 25px);
 }
 
 .patient-button {
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 35px 30px;
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  padding: clamp(20px, 4vw, 35px) clamp(20px, 3.5vw, 30px);
   cursor: pointer;
   transition: all 0.3s ease;
   overflow: hidden;
   align-items: center;
+  flex: 1 1 200px;
+  min-width: 180px;
+  max-width: 300px;
+  box-sizing: border-box;
 }
 
 .patient-button-1 {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(30, 64, 175, 0.25));
-  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25);
+  /* Inherits .patient-button styles */
 }
 
 .patient-button-1::before {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(30, 64, 175, 0.4));
+  display: none;
 }
 
 .patient-button-2 {
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.35), rgba(99, 102, 241, 0.25));
-  box-shadow: 0 8px 24px rgba(147, 51, 234, 0.25);
+  /* Inherits .patient-button styles */
 }
 
 .patient-button-2::before {
-  background: linear-gradient(135deg, rgba(147, 51, 234, 0.5), rgba(99, 102, 241, 0.4));
+  display: none;
 }
 
 .patient-button:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.patient-button:hover::before {
-  opacity: 1;
-}
-
-.patient-button:active {
-  transform: translateY(-2px);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+  border-color: var(--accent-blue);
 }
 
 .patient-button-icon {
-  font-size: 20px;
-  color: #f1f5f9;
+  font-size: clamp(16px, 2.5vw, 20px);
+  color: var(--text-main);
 }
 
 .patient-button-label {
-  font-size: 20px;
+  font-size: clamp(16px, 2.5vw, 20px);
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--text-main);
   display: block;
 }
 
 .patient-button-subtitle {
-  font-size: 0.95rem;
-  color: #cbd5e1;
+  font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+  color: #4B5563;
   opacity: 0.9;
   display: block;
 }
 
+/* Responsive breakpoints */
 @media (max-width: 1024px) {
   .patient-buttons {
-    flex-direction: column;
+    justify-content: center;
   }
 
   .patient-button {
-    flex: 1 1 auto;
-    width: 100%;
+    flex: 1 1 45%;
+    max-width: 280px;
   }
 }
 
 @media (max-width: 768px) {
   .testing-page-content {
-    padding: 20px 15px;
+    padding: 16px 12px;
   }
 
-  .testing-page h1 {
-    font-size: 2rem;
+  .patient-buttons {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .patient-button {
-    padding: 25px 20px;
-    min-width: auto;
+    flex: 1 1 auto;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding: 20px 16px;
   }
 
   .patient-button-label {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 }
 
+@media (max-width: 480px) {
+  .testing-page h1 {
+    font-size: 1.4rem;
+  }
+
+  .testing-page h2 {
+    font-size: 1.1rem;
+  }
+
+  .testing-page ul {
+    margin-left: 16px;
+  }
+}

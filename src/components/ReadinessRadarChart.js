@@ -85,16 +85,32 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
       .append("g")
       .attr("transform", `translate(${width / 2},${height / 2})`);
 
-    // Title
+    // Title - standardized format
+    const titleFontSize = width < 600 ? "14px" : 
+                         width < 900 ? "16px" : "18px";
+    
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", 18)
+      .attr("y", 20)
       .attr("text-anchor", "middle")
-      .attr("font-size", "18px")
+      .attr("font-size", titleFontSize)
       .attr("font-weight", "600")
-      .attr("fill", "#f1f5f9")
+      .attr("fill", "#111827")
       .text("Readiness Radar Chart");
+
+    // Subtitle explaining date format in legend
+    if (grid && grid.length > 0) {
+      svg
+        .append("text")
+        .attr("x", width - 100)
+        .attr("y", height - 75)
+        .attr("text-anchor", "start")
+        .attr("font-size", "8px")
+        .attr("fill", "#9CA3AF")
+        .attr("font-style", "italic")
+        .text("Dates shown as M/D");
+    }
 
     // Subtitle
     // svg
@@ -106,11 +122,11 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
     //   .attr("fill", "#94a3b8")
     //   .text("All domains (0-3 scale)");
 
-    // Color scale for different time points
+    // Color scale for different time points - stronger colors
     const colors = {
-      initial: "#ef4444", // Red
-      final: "#10b981", // Green
-      intermediate: "#3b82f6" // Blue
+      initial: "#EF4444", // Red
+      final: "#10B981", // Green
+      intermediate: "#0EA5E9" // Strong Blue
     };
 
     // Angle for each domain
@@ -125,8 +141,9 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
       g.append("circle")
         .attr("r", rScale(level))
         .attr("fill", "none")
-        .attr("stroke", i === levels.length - 1 ? "rgba(255, 255, 255, 0.15)" : "rgba(255, 255, 255, 0.08)")
+        .attr("stroke", "#E5E7EB")
         .attr("stroke-width", i === levels.length - 1 ? 1.5 : 1)
+        .attr("stroke-opacity", i === levels.length - 1 ? 1 : 0.5)
         .attr("stroke-dasharray", i === levels.length - 1 ? "none" : "2,2");
 
       // Level labels
@@ -135,9 +152,9 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
           .attr("x", 5)
           .attr("y", -rScale(level) + 4)
           .attr("text-anchor", "start")
-          .attr("font-size", "9px")
-          .attr("font-weight", "600")
-          .attr("fill", "#60a5fa")
+          .attr("font-size", "11px")
+          .attr("font-weight", "700")
+          .attr("fill", "#111827")
           .text(level);
       }
     });
@@ -176,8 +193,9 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         .attr("y1", 0)
         .attr("x2", x)
         .attr("y2", y)
-        .attr("stroke", "rgba(255, 255, 255, 0.15)")
-        .attr("stroke-width", 1);
+        .attr("stroke", "#E5E7EB")
+        .attr("stroke-width", 1)
+        .attr("stroke-opacity", 0.6);
 
       // Domain labels
       const labelDistance = radius + 12;
@@ -189,9 +207,9 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         .attr("y", labelY)
         .attr("text-anchor", labelX > 0 ? "start" : labelX < 0 ? "end" : "middle")
         .attr("alignment-baseline", labelY > 0 ? "text-before-edge" : "text-after-edge")
-        .attr("font-size", "9px")
-        .attr("font-weight", "600")
-        .attr("fill", "#e2e8f0")
+        .attr("font-size", "11px")
+        .attr("font-weight", "700")
+        .attr("fill", "#111827")
         .attr("cursor", "pointer")
         .text(domainLabels[domain] || domain);
       
@@ -199,7 +217,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
       labelText
         .on("mouseover", function(event) {
           d3.select(this)
-            .attr("fill", "#93c5fd")
+            .attr("fill", "#2563EB")
             .attr("font-weight", "700");
           
           // Get current data based on selected time point
@@ -226,16 +244,16 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
                 <div class="tooltip-desc">${getDomainDescription(domain)}</div>
               </div>
             `)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 10) + "px")
+            .style("left", (event.pageX + 30) + "px")
+            .style("top", (event.pageY - 100) + "px")
             .transition()
             .duration(200)
             .style("opacity", 1);
         })
         .on("mouseout", function() {
           d3.select(this)
-            .attr("fill", "#e2e8f0")
-            .attr("font-weight", "600");
+            .attr("fill", "#111827")
+            .attr("font-weight", "700");
           
           tooltip
             .transition()
@@ -295,8 +313,8 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
                 </div>
               </div>
             `)
-            .style("left", (event.pageX + 10) + "px")
-            .style("top", (event.pageY - 10) + "px")
+            .style("left", (event.pageX + 30) + "px")
+            .style("top", (event.pageY - 100) + "px")
             .transition()
             .duration(200)
             .style("opacity", 1);
@@ -344,8 +362,8 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
                   ${label ? `<div class="tooltip-time">${label}${date ? ` (${date})` : ""}</div>` : ""}
                 </div>
               `)
-              .style("left", (event.pageX + 10) + "px")
-              .style("top", (event.pageY - 10) + "px")
+              .style("left", (event.pageX + 30) + "px")
+              .style("top", (event.pageY - 100) + "px")
               .transition()
               .duration(200)
               .style("opacity", 1);
@@ -404,17 +422,17 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
 
       // Draw progress (middle point - more visible)
       if (progress) {
-        drawRadarPolygon(progress, colors.intermediate, 0.6, 2.5, "Progress", progress.Date || "");
+        drawRadarPolygon(progress, colors.intermediate, 0.20, 2, "Progress", progress.Date || "");
       }
 
       // Draw final (most visible)
       if (final) {
-        drawRadarPolygon(final, colors.final, 0.7, 3, "Final", final.Date || "");
+        drawRadarPolygon(final, colors.final, 0.20, 2, "Final", final.Date || "");
       }
 
       // Draw initial (most visible)
       if (initial) {
-        drawRadarPolygon(initial, colors.initial, 0.7, 3, "Initial", initial.Date || "");
+        drawRadarPolygon(initial, colors.initial, 0.20, 2, "Initial", initial.Date || "");
       }
     } else if (radarData && !Array.isArray(radarData)) {
       // Single time point
@@ -429,19 +447,31 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         color = colors.final;
         label = "Final";
       }
-      drawRadarPolygon(radarData, color, 0.7, 3, label, radarData.Date || "");
+      drawRadarPolygon(radarData, color, 0.20, 2, label, radarData.Date || "");
     }
 
-    // Legend
+    // Legend with dates
     const legend = svg
       .append("g")
       .attr("transform", `translate(${width - 100}, ${height - 60})`);
 
+    // Extract dates from grid for legend
+    let initialDate = "";
+    let progressDate = "";
+    let finalDate = "";
+    
+    if (grid && grid.length > 0) {
+      initialDate = grid[0].Date || "";
+      const middleIndex = Math.floor(grid.length / 2);
+      progressDate = (grid[middleIndex] || grid[Math.max(0, middleIndex - 1)])?.Date || "";
+      finalDate = grid[grid.length - 1].Date || "";
+    }
+
     if (selectedTimePoint === "all") {
       const legendData = [
-        { color: colors.initial, label: "Initial" },
-        { color: colors.intermediate, label: "Progress" },
-        { color: colors.final, label: "Final" }
+        { color: colors.initial, label: "Initial", date: initialDate },
+        { color: colors.intermediate, label: "Progress", date: progressDate },
+        { color: colors.final, label: "Final", date: finalDate }
       ];
 
       legendData.forEach((item, i) => {
@@ -452,18 +482,19 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
           .attr("rx", 2)
           .attr("fill", item.color)
           .attr("opacity", 0.8);
+        const labelText = item.date ? `${item.label} (${item.date})` : item.label;
         lg.append("text")
           .attr("x", 15)
           .attr("y", 8)
           .attr("font-size", "9px")
-          .attr("fill", "#e2e8f0")
-          .text(item.label);
+          .attr("fill", "#6B7280")
+          .text(labelText);
       });
     } else {
       const itemMap = {
-        initial: { color: colors.initial, label: "Initial" },
-        progress: { color: colors.intermediate, label: "Progress" },
-        final: { color: colors.final, label: "Final" }
+        initial: { color: colors.initial, label: "Initial", date: initialDate },
+        progress: { color: colors.intermediate, label: "Progress", date: progressDate },
+        final: { color: colors.final, label: "Final", date: finalDate }
       };
       const item = itemMap[selectedTimePoint] || itemMap.final;
       const lg = legend.append("g");
@@ -473,12 +504,13 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         .attr("rx", 2)
         .attr("fill", item.color)
         .attr("opacity", 0.8);
+      const labelText = item.date ? `${item.label} (${item.date})` : item.label;
       lg.append("text")
         .attr("x", 18)
         .attr("y", 10)
         .attr("font-size", "10px")
-        .attr("fill", "#e2e8f0")
-        .text(item.label);
+        .attr("fill", "#6B7280")
+        .text(labelText);
     }
 
     // Time point selector - positioned on the left side, vertically centered
@@ -509,8 +541,8 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
           .attr("width", 50)
           .attr("height", 22)
           .attr("rx", 4)
-          .attr("fill", isSelected ? "#3b82f6" : "rgba(255, 255, 255, 0.1)")
-          .attr("stroke", isSelected ? "#60a5fa" : "rgba(255, 255, 255, 0.2)")
+          .attr("fill", isSelected ? "#2563EB" : "#F3F4F6")
+          .attr("stroke", isSelected ? "#2563EB" : "#E5E7EB")
           .attr("stroke-width", 1);
 
         optGroup
@@ -520,7 +552,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
           .attr("text-anchor", "middle")
           .attr("font-size", "9px")
           .attr("font-weight", isSelected ? "600" : "500")
-          .attr("fill", isSelected ? "#fff" : "#94a3b8")
+          .attr("fill", isSelected ? "#fff" : "#6B7280")
           .text(option.label);
 
         optGroup.on("click", () => {
@@ -529,13 +561,13 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
 
         optGroup.on("mouseover", function () {
           if (!isSelected) {
-            d3.select(this).select("rect").attr("fill", "rgba(255, 255, 255, 0.15)");
+            d3.select(this).select("rect").attr("fill", "#E5E7EB");
           }
         });
 
         optGroup.on("mouseout", function () {
           if (!isSelected) {
-            d3.select(this).select("rect").attr("fill", "rgba(255, 255, 255, 0.1)");
+            d3.select(this).select("rect").attr("fill", "#F3F4F6");
           }
         });
       });
@@ -547,7 +579,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
     return () => {
       d3.select("body").selectAll(".radar-tooltip").remove();
     };
-  }, [radarData, loading, selectedTimePoint, grid.length]);
+  }, [radarData, loading, selectedTimePoint, grid]);
 
   // Handle resize
   useEffect(() => {
@@ -584,7 +616,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
           alignItems: "center",
           justifyContent: "center",
           minHeight: "400px",
-          color: "#f1f5f9"
+          color: "#6B7280"
         }}
       >
         Loading readiness data...
@@ -601,7 +633,7 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
           alignItems: "center",
           justifyContent: "center",
           minHeight: "400px",
-          color: "#f1f5f9"
+          color: "#6B7280"
         }}
       >
         No readiness data available

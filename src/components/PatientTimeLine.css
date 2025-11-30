@@ -1,17 +1,184 @@
+/* Patient Timeline - Optimized for laptop screens */
+
 .patient-timeline-container {
   width: 100%;
   height: 100%;
+  flex: 1;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .patient-timeline-chart {
   width: 100%;
   height: 100%;
-  min-height: 200px;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.patient-timeline-chart svg {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  background: transparent;
 }
 
 .patient-timeline-loading {
-  padding: 20px;
+  padding: 16px;
   text-align: center;
-  color: #94a3b8;
+  color: var(--text-muted);
+  font-size: 0.9rem;
 }
 
+/* Timeline Modal - Responsive */
+.timeline-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.timeline-modal-content {
+  background: var(--card-bg);
+  padding: 18px;
+  border-radius: var(--card-radius);
+  width: 90%;
+  max-width: 550px;
+  max-height: 75vh;
+  color: var(--text-main);
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--card-border);
+  text-align: left;
+  animation: slideUp 0.4s ease;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.timeline-modal-title {
+  color: var(--accent-blue);
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: clamp(15px, 1.8vw, 18px);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.timeline-modal-list {
+  line-height: 1.7em;
+  font-size: clamp(0.78em, 1.1vw, 0.88em);
+  padding: 0 0 0 18px;
+  list-style: disc;
+  margin: 0;
+  color: var(--text-main);
+}
+
+.timeline-modal-list-item {
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.timeline-modal-label {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.timeline-modal-empty {
+  padding: 16px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.timeline-modal-close-container {
+  text-align: center;
+  margin-top: 14px;
+}
+
+.timeline-modal-close-button {
+  background: var(--accent-blue);
+  border: none;
+  padding: 7px 14px;
+  border-radius: 6px;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.timeline-modal-close-button:hover {
+  background: #1D4ED8;
+  transform: translateY(-1px);
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 1599px) and (min-width: 1280px) {
+  .timeline-modal-content {
+    padding: 16px;
+    max-width: 500px;
+  }
+
+  .timeline-modal-title {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .timeline-modal-list {
+    font-size: 0.82em;
+    line-height: 1.6em;
+  }
+}
+
+@media (max-width: 1279px) and (min-width: 1024px) {
+  .timeline-modal-content {
+    padding: 14px;
+    max-width: 450px;
+  }
+
+  .timeline-modal-title {
+    font-size: 15px;
+    margin-bottom: 8px;
+  }
+
+  .timeline-modal-list {
+    font-size: 0.78em;
+    line-height: 1.55em;
+  }
+}

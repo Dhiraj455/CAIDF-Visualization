@@ -92,7 +92,7 @@ export default function PatientTimeLine({ patientNumber = 1 }) {
       .attr("transform", `translate(0,${innerH})`)
       .call(d3.axisBottom(x))
       .call(ax => ax.selectAll("text")
-        .attr("fill", "#e2e8f0")
+        .attr("fill", "#6B7280")
         .attr("font-size", "12px")
         .attr("font-weight", "500")
         .style("cursor", "pointer")
@@ -104,10 +104,12 @@ export default function PatientTimeLine({ patientNumber = 1 }) {
             onPhaseClick(phaseKey, phaseSections);
           }
         }))
+      .call(ax => ax.selectAll("line, path")
+        .attr("stroke", "#E5E7EB"))
       .call(ax => ax.append("text")
         .attr("x", innerW)
         .attr("y", 32)
-        .attr("fill", "#93c5fd")
+        .attr("fill", "#2563EB")
         .attr("font-weight", 600)
         .attr("font-size", "12px")
         .attr("text-anchor", "end")
@@ -116,14 +118,14 @@ export default function PatientTimeLine({ patientNumber = 1 }) {
     g.append("g")
       .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format("d")))
       .call(ax => ax.selectAll("text")
-      .attr("fill", "#e2e8f0")
+      .attr("fill", "#6B7280")
         .attr("font-size", "11px"))
       .call(ax => ax.selectAll("line, path")
-        .attr("stroke", "#64748b"))
+        .attr("stroke", "#E5E7EB"))
       .call(ax => ax.append("text")
         .attr("x", 0)
         .attr("y", -12)
-          .attr("fill", "#93c5fd")
+          .attr("fill", "#2563EB")
         .attr("font-weight", 600)
         .attr("font-size", "12px")
         .attr("text-anchor", "start")
@@ -165,28 +167,13 @@ export default function PatientTimeLine({ patientNumber = 1 }) {
       .y(d => y(d.count))
       .curve(d3.curveCatmullRom.alpha(0.3));
 
-    // Add gradient definition for area fill
-    const gradient = svg.append("defs")
-      .append("linearGradient")
-      .attr("id", "areaGradient")
-      .attr("gradientUnits", "userSpaceOnUse")
-      .attr("x1", 0).attr("y1", margin.top)
-      .attr("x2", 0).attr("y2", margin.top + innerH);
-
-    gradient.append("stop")
-      .attr("offset", "0%")
-      .attr("stop-color", "rgba(59, 130, 246, 0.4)")
-      .attr("stop-opacity", 0.6);
-
-    gradient.append("stop")
-      .attr("offset", "100%")
-      .attr("stop-color", "rgba(147, 51, 234, 0.3)")
-      .attr("stop-opacity", 0.3);
+    // Add simple area fill (no gradient for better contrast)
+    const areaFillColor = "rgba(129, 212, 250, 0.25)";
 
     // Draw filled area under the line
     g.append("path")
       .datum(lineData)
-      .attr("fill", "url(#areaGradient)")
+      .attr("fill", areaFillColor)
       .attr("stroke", "none")
       .attr("d", area)
       .style("pointer-events", "none");
@@ -195,8 +182,8 @@ export default function PatientTimeLine({ patientNumber = 1 }) {
     g.append("path")
       .datum(lineData)
       .attr("fill", "none")
-      .attr("stroke", "#60a5fa")
-      .attr("stroke-width", 2.5)
+      .attr("stroke", "#2563EB")
+      .attr("stroke-width", 2)
       .attr("d", line)
       .style("pointer-events", "none"); // Line itself doesn't capture events
 
@@ -216,13 +203,13 @@ export default function PatientTimeLine({ patientNumber = 1 }) {
       .style("pointer-events", "none");
 
     const hoverLine = hoverIndicator.append("line")
-      .attr("stroke", "#93c5fd")
+      .attr("stroke", "#2563EB")
       .attr("stroke-width", 2)
       .attr("stroke-dasharray", "5,5");
 
     const hoverDot = hoverIndicator.append("circle")
       .attr("r", 6)
-      .attr("fill", "#93c5fd")
+      .attr("fill", "#2563EB")
       .attr("stroke", "#fff")
       .attr("stroke-width", 2);
 
