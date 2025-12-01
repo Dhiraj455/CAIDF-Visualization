@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
 import * as d3 from "d3";
+import * as THREE from "three";
 import { extractRiskTrendData } from "../utils/extractRiskTrend";
 import patient1Data from "../data/Patient1.txt";
 import patient2Data from "../data/Patient2.txt";
@@ -51,8 +52,14 @@ function calculateRiskData(grid) {
 
 export default function RiskTrendGraph({ patientNumber = 1 }) {
   const containerRef = useRef();
+  const canvas3DRef = useRef();
   const [grid, setGrid] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState("2D"); // "2D" or "3D"
+  const sceneRef = useRef(null);
+  const cameraRef = useRef(null);
+  const rendererRef = useRef(null);
+  const animationFrameRef = useRef(null);
 
   // Load patient data and extract risk trend
   useEffect(() => {
@@ -76,7 +83,341 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
     return grid.length > 0 ? calculateRiskData(grid) : [];
   }, [grid]);
 
-  // Draw risk trend graph
+  // Color function for risk stages
+  const getRiskColor = (score) => {
+    if (score < 0.5) return "#22C55E"; // Low risk (0.0-0.5) - Green
+    if (score < 1.5) return "#F59E0B"; // Medium risk (0.5-1.5) - Orange/Yellow
+    return "#EF4444"; // High risk (1.5-3.0) - Red
+  };
+
+  // Get color as THREE.Color
+  const getRiskColor3D = (score) => {
+    if (score < 0.5) return new THREE.Color(0x22C55E); // Green
+    if (score < 1.5) return new THREE.Color(0xF59E0B); // Orange
+    return new THREE.Color(0xEF4444); // Red
+  };
+
+  // Draw 3D Risk Terrain - Matching 2D chart exactly
+  const draw3DTerrain = useCallback(() => {
+    if (!canvas3DRef.current || loading || grid.length === 0 || riskData.length === 0) return;
+
+    const container = canvas3DRef.current.parentElement;
+    if (!container) return;
+
+    const width = container.clientWidth || 800;
+    const height = container.clientHeight || 500;
+
+    // Clean up previous scene
+    if (sceneRef.current) {
+      sceneRef.current.traverse((object) => {
+        if (object.geometry) object.geometry.dispose();
+        if (object.material) {
+          if (Array.isArray(object.material)) {
+            object.material.forEach(mat => mat.dispose());
+          } else {
+            object.material.dispose();
+          }
+        }
+      });
+    }
+
+    // Scene setup
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xf9fafb);
+    sceneRef.current = scene;
+
+    // Camera setup - better angle to see the line
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+    camera.position.set(6, 4, 6);
+    camera.lookAt(0, 1.5, 0);
+    cameraRef.current = camera;
+
+    // Renderer setup
+    const renderer = new THREE.WebGLRenderer({ 
+      canvas: canvas3DRef.current,
+      antialias: true,
+      alpha: true
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    rendererRef.current = renderer;
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 8, 5);
+    scene.add(directionalLight);
+
+    // Scale factors to match 2D chart
+    const xScale = 8; // Width of the chart
+    const yScale = 3; // Height scale (0-3 risk range)
+    const xOffset = -xScale / 2; // Center horizontally
+
+    // Create 3D line path matching 2D chart exactly
+    const points = [];
+    riskData.forEach((point, index) => {
+      const x = (index / (riskData.length - 1)) * xScale + xOffset;
+      const y = point.riskScore * (yScale / 3); // Scale to match 2D (0-3 range)
+      const z = 0; // Flat in Z for now
+      points.push(new THREE.Vector3(x, y, z));
+    });
+
+    // Create smooth curve using CatmullRomCurve3 (matching D3 curveMonotoneX)
+    const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
+    const curvePoints = curve.getPoints(riskData.length * 10); // Smooth curve
+
+    // Create tube geometry along the curve (ribbon effect)
+    const tubeGeometry = new THREE.TubeGeometry(curve, curvePoints.length, 0.08, 8, false);
+    
+    // Create material with gradient colors along the line
+    const tubeMaterial = new THREE.MeshPhongMaterial({
+      vertexColors: true,
+      shininess: 50
+    });
+
+    // Add vertex colors based on risk scores
+    const colors = [];
+    const positions = tubeGeometry.attributes.position.array;
+    for (let i = 0; i < positions.length; i += 3) {
+      const x = positions[i];
+      const normalizedX = (x - xOffset) / xScale;
+      const dataIndex = Math.min(Math.floor(normalizedX * (riskData.length - 1)), riskData.length - 1);
+      const risk = riskData[dataIndex]?.riskScore || 0;
+      const color = getRiskColor3D(risk);
+      colors.push(color.r, color.g, color.b);
+    }
+    tubeGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+    const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+    scene.add(tube);
+
+    // Add data point markers (spheres) - matching 2D chart points
+    const markers = [];
+    riskData.forEach((point, index) => {
+      const x = (index / (riskData.length - 1)) * xScale + xOffset;
+      const y = point.riskScore * (yScale / 3);
+      const z = 0;
+
+      // Create sphere marker
+      const markerGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+      const markerMaterial = new THREE.MeshPhongMaterial({ 
+        color: getRiskColor3D(point.riskScore),
+        shininess: 100,
+        emissive: getRiskColor3D(point.riskScore),
+        emissiveIntensity: 0.4
+      });
+      const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+      marker.position.set(x, y, z);
+      marker.userData = { point, index }; // Store data for tooltips
+      scene.add(marker);
+      markers.push(marker);
+
+      // Add vertical line from base to point (like in 2D)
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(x, 0, z),
+        new THREE.Vector3(x, y, z)
+      ]);
+      const lineMaterial = new THREE.LineBasicMaterial({ 
+        color: getRiskColor3D(point.riskScore),
+        opacity: 0.3,
+        transparent: true
+      });
+      const line = new THREE.Line(lineGeometry, lineMaterial);
+      scene.add(line);
+    });
+
+    // Add reference planes for risk levels (0, 1, 2, 3)
+    [0, 1, 2, 3].forEach((level) => {
+      const planeGeometry = new THREE.PlaneGeometry(xScale, 0.01);
+      const planeMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0xcccccc,
+        opacity: 0.3,
+        transparent: true,
+        side: THREE.DoubleSide
+      });
+      const plane = new THREE.Mesh(planeGeometry, planeMaterial);
+      plane.rotation.x = -Math.PI / 2;
+      plane.position.set(0, level * (yScale / 3), -0.5);
+      scene.add(plane);
+
+      // Add label for risk level (using HTML overlays instead of 3D text)
+    });
+
+    // Add axes with labels
+    // X-axis (Time/Days)
+    const xAxisGeometry = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(xOffset, 0, 0),
+      new THREE.Vector3(xOffset + xScale, 0, 0)
+    ]);
+    const xAxisMaterial = new THREE.LineBasicMaterial({ color: 0x666666, linewidth: 2 });
+    const xAxis = new THREE.Line(xAxisGeometry, xAxisMaterial);
+    scene.add(xAxis);
+
+    // Y-axis (Risk Score)
+    const yAxisGeometry = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(xOffset, 0, 0),
+      new THREE.Vector3(xOffset, yScale, 0)
+    ]);
+    const yAxisMaterial = new THREE.LineBasicMaterial({ color: 0x666666, linewidth: 2 });
+    const yAxis = new THREE.Line(yAxisGeometry, yAxisMaterial);
+    scene.add(yAxis);
+
+    // Add grid on base plane
+    const gridHelper = new THREE.GridHelper(xScale, riskData.length, 0xcccccc, 0xeeeeee);
+    gridHelper.position.set(0, 0, 0);
+    scene.add(gridHelper);
+
+    // Add date labels using HTML overlays (via CSS2DRenderer would be better, but simpler approach)
+    // Store markers for tooltip interaction
+    const tooltipDiv = document.createElement('div');
+    tooltipDiv.style.cssText = `
+      position: absolute;
+      background: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.2s;
+    `;
+    document.body.appendChild(tooltipDiv);
+
+    // Add hover interaction to markers
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let hoveredMarker = null;
+
+    const onMouseMoveTooltip = (event) => {
+      if (isDragging) return; // Don't show tooltip while dragging
+      
+      const rect = canvas3DRef.current.getBoundingClientRect();
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(markers);
+
+      if (intersects.length > 0) {
+        const marker = intersects[0].object;
+        if (hoveredMarker !== marker) {
+          hoveredMarker = marker;
+          const { point } = marker.userData;
+          const riskLevel = point.riskScore < 0.5 ? "Low Risk" :
+                           point.riskScore < 1.5 ? "Medium Risk" : "High Risk";
+          
+          tooltipDiv.innerHTML = `
+            <div style="font-weight:600;margin-bottom:4px;">${point.date} (Day ${point.dayNumber})</div>
+            <div style="margin-bottom:4px;">
+              <span style="color:${getRiskColor(point.riskScore)};">●</span>
+              <strong>Risk Score:</strong> ${point.riskScore.toFixed(2)} (${riskLevel})
+            </div>
+            <div style="border-top:1px solid rgba(255,255,255,0.3);padding-top:4px;margin-top:4px;font-size:11px;">
+              <div>Mobility: ${point.components.Mobility}</div>
+              <div>Wound Care: ${point.components.WoundCare}</div>
+              <div>Medical Stability: ${point.components.MedicalStability}</div>
+              <div>Swallowing: ${point.components.Swallowing}</div>
+            </div>
+          `;
+          tooltipDiv.style.opacity = '1';
+        }
+        tooltipDiv.style.left = event.clientX + 15 + 'px';
+        tooltipDiv.style.top = event.clientY - 80 + 'px';
+      } else {
+        if (hoveredMarker) {
+          hoveredMarker = null;
+          tooltipDiv.style.opacity = '0';
+        }
+      }
+    };
+
+    canvas3DRef.current.addEventListener('mousemove', onMouseMoveTooltip);
+
+    // Orbit controls
+    let isDragging = false;
+    let previousMousePosition = { x: 0, y: 0 };
+    let cameraDistance = 10;
+    let cameraAngleX = Math.PI / 4; // 45 degrees
+    let cameraAngleY = Math.PI / 4;
+
+    const updateCamera = () => {
+      camera.position.x = Math.sin(cameraAngleY) * Math.cos(cameraAngleX) * cameraDistance;
+      camera.position.y = Math.sin(cameraAngleX) * cameraDistance;
+      camera.position.z = Math.cos(cameraAngleY) * Math.cos(cameraAngleX) * cameraDistance;
+      camera.lookAt(0, 1.5, 0); // Look at center of chart
+    };
+    updateCamera();
+
+    const onMouseDown = (e) => {
+      isDragging = true;
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+      canvas3DRef.current.style.cursor = 'grabbing';
+    };
+
+    const onMouseMoveDrag = (e) => {
+      if (!isDragging) return;
+
+      const deltaX = e.clientX - previousMousePosition.x;
+      const deltaY = e.clientY - previousMousePosition.y;
+
+      cameraAngleY -= deltaX * 0.01;
+      cameraAngleX += deltaY * 0.01;
+      cameraAngleX = Math.max(0.1, Math.min(Math.PI / 2 - 0.1, cameraAngleX));
+
+      updateCamera();
+      previousMousePosition = { x: e.clientX, y: e.clientY };
+    };
+
+    const onMouseUp = () => {
+      isDragging = false;
+      canvas3DRef.current.style.cursor = 'grab';
+    };
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      cameraDistance += e.deltaY * 0.01;
+      cameraDistance = Math.max(6, Math.min(20, cameraDistance));
+      updateCamera();
+    };
+
+    canvas3DRef.current.addEventListener('mousedown', onMouseDown);
+    window.addEventListener('mousemove', onMouseMoveDrag);
+    window.addEventListener('mouseup', onMouseUp);
+    canvas3DRef.current.addEventListener('wheel', onWheel);
+
+    // Animation loop
+    const animate = () => {
+      animationFrameRef.current = requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    // Store cleanup functions
+    const cleanup = () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+      if (canvas3DRef.current) {
+        canvas3DRef.current.removeEventListener('mousedown', onMouseDown);
+        canvas3DRef.current.removeEventListener('wheel', onWheel);
+        canvas3DRef.current.removeEventListener('mousemove', onMouseMoveTooltip);
+      }
+      window.removeEventListener('mousemove', onMouseMoveDrag);
+      window.removeEventListener('mouseup', onMouseUp);
+      if (tooltipDiv && tooltipDiv.parentNode) {
+        tooltipDiv.parentNode.removeChild(tooltipDiv);
+      }
+    };
+
+    // Return cleanup function
+    return cleanup;
+  }, [riskData, loading, grid.length]);
+
+  // Draw risk trend graph (2D)
   const drawRiskTrend = useCallback(() => {
     if (!containerRef.current || loading || grid.length === 0 || riskData.length === 0) return;
 
@@ -125,8 +466,8 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
       .attr("fill", "#111827")
       .text("Patient Discharge Risk Trend");
 
-    // Sub title - responsive font size
-    const subtitleFontSize = containerWidth < 600 ? "10px" : "12px";
+    // Sub title - responsive font size (commented out for now)
+    // const subtitleFontSize = containerWidth < 600 ? "10px" : "12px";
     
     // svg.append("text")
     //   .attr("x", width / 2)
@@ -145,12 +486,6 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
       .domain([0, 3])
       .range([height - margin.bottom, margin.top]);
 
-    // Color function for risk stages
-    const getRiskColor = (score) => {
-      if (score < 0.5) return "#22C55E"; // Low risk (0.0-0.5) - Green
-      if (score < 1.5) return "#F59E0B"; // Medium risk (0.5-1.5) - Orange/Yellow
-      return "#EF4444"; // High risk (1.5-3.0) - Red
-    };
 
     // X axis
     const xAxis = svg.append("g")
@@ -280,9 +615,9 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
         tooltip.style("opacity", 0);
       });
 
-    // Legend - responsive positioning
+    // Legend - positioned below toggle button (top: 10px + ~40px button height + 5px gap = ~55px)
     const legendX = width - margin.right - (containerWidth < 600 ? 80 : containerWidth < 900 ? 100 : 120);
-    const legendY = margin.top;
+    const legendY = 55; // Position below toggle button
     
     const legend = svg.append("g")
       .attr("transform", `translate(${legendX}, ${legendY})`);
@@ -323,9 +658,40 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
     };
   }, [riskData, loading, grid.length]);
 
+  // Draw based on view mode
   useEffect(() => {
+    let cleanup;
+    
+    if (viewMode === "3D") {
+      cleanup = draw3DTerrain();
+    } else {
     drawRiskTrend();
-  }, [drawRiskTrend]);
+    }
+
+    return () => {
+      if (cleanup) cleanup();
+    };
+  }, [viewMode, drawRiskTrend, draw3DTerrain]);
+
+  // Handle window resize for 3D
+  useEffect(() => {
+    if (viewMode !== "3D" || !rendererRef.current || !cameraRef.current) return;
+
+    const handleResize = () => {
+      const container = canvas3DRef.current?.parentElement;
+      if (!container) return;
+
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+
+      cameraRef.current.aspect = width / height;
+      cameraRef.current.updateProjectionMatrix();
+      rendererRef.current.setSize(width, height);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [viewMode]);
 
   // Handle window resize
   useEffect(() => {
@@ -382,9 +748,150 @@ export default function RiskTrendGraph({ patientNumber = 1 }) {
 
   return (
     <div 
-      ref={containerRef} 
       className="risk-trend-container"
+      style={{ width: '100%', height: '100%', position: 'relative' }}
+    >
+      {/* View Mode Toggle */}
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        zIndex: 1000,
+        display: 'flex',
+        gap: '4px',
+        background: 'rgba(255, 255, 255, 0.9)',
+        padding: '4px',
+        borderRadius: '6px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      }}>
+        <button
+          onClick={() => setViewMode("2D")}
+          style={{
+            padding: '6px 12px',
+            border: 'none',
+            borderRadius: '4px',
+            background: viewMode === "2D" ? '#2563EB' : '#F3F4F6',
+            color: viewMode === "2D" ? '#fff' : '#6B7280',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: viewMode === "2D" ? '600' : '400',
+            transition: 'all 0.2s'
+          }}
+        >
+          2D
+        </button>
+        <button
+          onClick={() => setViewMode("3D")}
+          style={{
+            padding: '6px 12px',
+            border: 'none',
+            borderRadius: '4px',
+            background: viewMode === "3D" ? '#2563EB' : '#F3F4F6',
+            color: viewMode === "3D" ? '#fff' : '#6B7280',
+            cursor: 'pointer',
+            fontSize: '12px',
+            fontWeight: viewMode === "3D" ? '600' : '400',
+            transition: 'all 0.2s'
+          }}
+        >
+          3D
+        </button>
+      </div>
+
+      {/* 2D View */}
+      {viewMode === "2D" && (
+        <div 
+          ref={containerRef} 
       style={{ width: '100%', height: '100%' }}
     />
+      )}
+
+      {/* 3D View */}
+      {viewMode === "3D" && (
+        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+          {/* Title for 3D View */}
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 100,
+            background: 'rgba(255, 255, 255, 0.95)',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            pointerEvents: 'none'
+          }}>
+            <div style={{
+              fontSize: 'clamp(8px, 1.2vw, 14px)',
+              fontWeight: '600',
+              color: '#111827',
+              textAlign: 'center',
+              whiteSpace: 'nowrap'
+            }}>
+              Patient Discharge Risk Trend
+            </div>
+          </div>
+          
+          <canvas 
+            ref={canvas3DRef}
+            style={{ 
+              width: '100%', 
+              height: '100%',
+              display: 'block',
+              cursor: 'grab'
+            }}
+          />
+          {/* 3D Instructions */}
+          <div style={{
+            position: 'absolute',
+            bottom: '10px',
+            left: '10px',
+            background: 'rgba(0, 0, 0, 0.7)',
+            color: '#fff',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            fontSize: '11px',
+            zIndex: 100
+          }}>
+            <div>🖱️ Drag to rotate | Scroll to zoom | Hover points for details</div>
+            <div style={{ marginTop: '4px', opacity: 0.8 }}>
+              X-axis: Time (Days) | Y-axis: Risk Score (0-3) | Color = Risk Level
+            </div>
+          </div>
+          
+          {/* Axis Labels Overlay */}
+          <div style={{
+            position: 'absolute',
+            bottom: '50px',
+            left: '10px',
+            background: 'rgba(255, 255, 255, 0.9)',
+            padding: '6px 10px',
+            borderRadius: '4px',
+            fontSize: '10px',
+            color: '#666',
+            zIndex: 100,
+            fontWeight: '600'
+          }}>
+            Y: Risk Score (0-3)
+          </div>
+          
+          <div style={{
+            position: 'absolute',
+            bottom: '10px',
+            right: '10px',
+            background: 'rgba(255, 255, 255, 0.9)',
+            padding: '6px 10px',
+            borderRadius: '4px',
+            fontSize: '10px',
+            color: '#666',
+            zIndex: 100,
+            fontWeight: '600'
+          }}>
+            X: Days ({riskData[0]?.date} → {riskData[riskData.length - 1]?.date})
+          </div>
+        </div>
+      )}
+    </div>
   );
 }

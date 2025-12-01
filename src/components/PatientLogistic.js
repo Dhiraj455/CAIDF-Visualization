@@ -31,14 +31,7 @@ export default function PatientLogistic({ patientNumber = 1 }) {
     const containerHeight = container.clientHeight || 400;
     const width = containerWidth;
     const height = containerHeight;
-    const margin = { top: 15, left: 12, right: 12, bottom: 12 };
 
-    const colors = {
-      Education: "url(#gradEdu)",
-      Medication: "url(#gradMed)",
-      Caregiver: "url(#gradCare)",
-      "Follow-ups": "url(#gradFollow)",
-    };
 
     const sections = [
       {
@@ -49,6 +42,8 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         completed: data.education.completed,
         total: data.education.topics.length,
         description: "View education topics and completion status",
+        icon: "🎓",
+        color: { from: "#60A5FA", to: "#2563EB" },
       },
       {
         label: "Medication",
@@ -59,6 +54,8 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         completed: data.medications.filter((m) => m.status === "completed").length,
         total: data.medications.length,
         description: "View medication list and completion status",
+        icon: "💊",
+        color: { from: "#A78BFA", to: "#8B5CF6" },
       },
       {
         label: "Caregiver",
@@ -71,6 +68,8 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         completed: data.caregiver.status === "full" ? 1 : data.caregiver.status === "partial" ? 1 : 0,
         total: 1,
         description: "View caregiver information and status",
+        icon: "🧑‍🤝‍🧑",
+        color: { from: "#F472B6", to: "#EC4899" },
       },
       {
         label: "Follow-ups",
@@ -81,156 +80,191 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         completed: data.followUps.filter((f) => f.completed).length,
         total: data.followUps.length,
         description: "View follow-up tasks and completion status",
+        icon: "📋",
+        color: { from: "#FBBF24", to: "#F59E0B" },
       },
     ];
 
     // --- Gradient Definitions ---
     const defs = svg.append("defs");
 
-    const gradients = [
-      { id: "gradEdu", from: "#60A5FA", to: "#2563EB" }, // Blue gradient - light to dark
-      { id: "gradMed", from: "#A78BFA", to: "#8B5CF6" }, // Purple gradient - light to dark
-      { id: "gradCare", from: "#F472B6", to: "#EC4899" }, // Pink gradient - light to dark
-      { id: "gradFollow", from: "#FBBF24", to: "#F59E0B" }, // Amber gradient - light to dark
-    ];
-
-    gradients.forEach((g) => {
+    // Create gradients for each section
+    sections.forEach((sec, i) => {
       const grad = defs
         .append("linearGradient")
-        .attr("id", g.id)
+        .attr("id", `grad${i}`)
         .attr("x1", "0%")
         .attr("x2", "100%")
         .attr("y1", "0%")
         .attr("y2", "0%");
-      grad.append("stop").attr("offset", "0%").attr("stop-color", g.from);
-      grad.append("stop").attr("offset", "100%").attr("stop-color", g.to);
+      grad.append("stop").attr("offset", "0%").attr("stop-color", sec.color.from);
+      grad.append("stop").attr("offset", "100%").attr("stop-color", sec.color.to);
     });
 
-    // Create tooltip element first
+    // Create tooltip element
     const tooltip = d3.select("body")
-      .append("div")
-      .attr("class", "logistic-tooltip")
-      .style("opacity", 0)
-      .style("position", "absolute")
-      .style("pointer-events", "none")
-      .style("z-index", 10001);
+      .select(".logistic-tooltip")
+      .node() ? d3.select("body").select(".logistic-tooltip") :
+      d3.select("body")
+        .append("div")
+        .attr("class", "logistic-tooltip")
+        .style("opacity", 0)
+        .style("position", "absolute")
+        .style("pointer-events", "none")
+        .style("z-index", 10001)
+        .style("background", "rgba(0,0,0,0.85)")
+        .style("color", "#fff")
+        .style("padding", "10px 14px")
+        .style("border-radius", "6px")
+        .style("font-size", "13px");
 
-    // Calculate title height
-    const titleHeight = 20; // Title text height
-    const titleMargin = 12; // Space after title
-    
     // --- Render Title at top - centered and standardized ---
     const titleFontSize = containerWidth < 600 ? "14px" : 
                          containerWidth < 900 ? "16px" : "18px";
+    const titleHeight = 25;
+    const titleMargin = 8;
     
     svg
       .append("text")
       .attr("x", width / 2)
-      .attr("y", 20)
+      .attr("y", titleHeight)
       .attr("text-anchor", "middle")
       .attr("font-size", titleFontSize)
       .attr("font-weight", "600")
       .attr("fill", "#111827")
       .text("Patient Logistics & Education");
 
-    // Calculate available height for sections (excluding title)
-    // Title is at y=20, so title area ends at y=20 + titleHeight + titleMargin
-    const titleAreaHeight = 20 + titleHeight + titleMargin;
-    const sectionAreaTop = titleAreaHeight;
-    const sectionAreaBottom = height - margin.bottom;
-    const availableHeightForSections = sectionAreaBottom - sectionAreaTop;
+    // Calculate available space for rings (excluding title and labels)
+    const topMargin = titleHeight + titleMargin + 10;
+    const bottomMargin = 30; // Space for labels below rings
+    const sideMargin = 55; // Side margins
+    const availableWidth = width - (sideMargin * 2);
+    const availableHeight = height - topMargin - bottomMargin;
+
+    // Layout: 2x2 grid of circular progress rings
+    // Calculate optimal ring size to fill container
+    const gridCols = 2;
+    const gridRows = 2;
     
-    // Calculate total height needed for all sections
-    const sectionCount = sections.length;
-    const labelHeight = 6; // Height for label text
-    const gapAfterLabel = 6; // Gap between label and bar
-    const barHeight = 14; // Height of progress bar
-    // Calculate spacing to fill available height - distribute evenly
-    const sectionSpacing = 18;
-    const totalSectionHeight = sectionCount * (labelHeight + gapAfterLabel + barHeight) + (sectionCount - 1) * sectionSpacing;
+    // Calculate spacing between rings (15% of available space)
+    const horizontalGap = availableWidth * 0.12;
+    const verticalGap = availableHeight * 0.12;
     
-    // Position sections above center, closer to title but still visually balanced
-    // Use 30% offset from top instead of 50% (center) to position higher
-    const verticalOffset = (availableHeightForSections - totalSectionHeight) * 0.3;
-    const startY = sectionAreaTop + verticalOffset;
+    // Calculate maximum ring diameter that fits
+    const maxRingWidth = (availableWidth - horizontalGap) / gridCols;
+    const maxRingHeight = (availableHeight - verticalGap) / gridRows;
+    const maxRingDiameter = Math.min(maxRingWidth, maxRingHeight);
     
-    let y = startY;
+    // Ring radius should be about 45% of cell size to leave room for labels
+    const ringRadius = Math.max(35, Math.min(60, maxRingDiameter * 0.45));
+    const ringStrokeWidth = Math.max(8, Math.min(12, ringRadius * 0.15));
     
-    // --- Render Progress Bars ---
+    // Calculate spacing between ring centers
+    const horizontalSpacing = (availableWidth - (ringRadius * 2 * gridCols)) / (gridCols - 1) + (ringRadius * 2);
+    const verticalSpacing = (availableHeight - (ringRadius * 2 * gridRows)) / (gridRows - 1) + (ringRadius * 2);
+    
+    // Calculate starting position to center the grid
+    const totalGridWidth = (ringRadius * 2 * gridCols) + (horizontalSpacing - ringRadius * 2) * (gridCols - 1);
+    const totalGridHeight = (ringRadius * 2 * gridRows) + (verticalSpacing - ringRadius * 2) * (gridRows - 1);
+    const startX = sideMargin + (availableWidth - totalGridWidth) / 2 + ringRadius;
+    const startY = topMargin + (availableHeight - totalGridHeight) / 2 + ringRadius;
+
+    const positions = [
+      { x: startX, y: startY }, // Top-left
+      { x: startX + horizontalSpacing, y: startY }, // Top-right
+      { x: startX, y: startY + verticalSpacing }, // Bottom-left
+      { x: startX + horizontalSpacing, y: startY + verticalSpacing }, // Bottom-right
+    ];
+    
+    // --- Render Circular Progress Rings ---
     sections.forEach((sec, i) => {
+      const pos = positions[i];
       const group = svg
         .append("g")
+        .attr("transform", `translate(${pos.x}, ${pos.y})`)
         .style("cursor", "pointer")
         .on("click", () => setShowModal(sec.label));
 
+      // Background ring (gray)
       group
-        .append("text")
-        .attr("x", margin.left)
-        .attr("y", y)
-        .text(sec.label)
-        .style("fill", "#111827")
-        .style("font-size", "15px")
-        .style("font-weight", "700");
+        .append("circle")
+        .attr("r", ringRadius)
+        .attr("fill", "none")
+        .attr("stroke", "#E5E7EB")
+        .attr("stroke-width", ringStrokeWidth);
 
-      y += 6;
+      // Progress ring
+      const circumference = 2 * Math.PI * ringRadius;
+      const progressRing = group
+        .append("circle")
+        .attr("r", ringRadius)
+        .attr("fill", "none")
+        .attr("stroke", `url(#grad${i})`)
+        .attr("stroke-width", ringStrokeWidth)
+        .attr("stroke-linecap", "round")
+        .attr("stroke-dasharray", circumference)
+        .attr("stroke-dashoffset", circumference)
+        .attr("transform", "rotate(-90)");
 
-      const barWidth = width - margin.left - margin.right - 50;
-      const barHeight = 14;
-
-      group
-        .append("rect")
-        .attr("x", margin.left)
-        .attr("y", y)
-        .attr("width", barWidth)
-        .attr("height", barHeight)
-        .attr("rx", 6)
-        .style("fill", "rgba(255,255,255,0.08)")
-        .style("stroke", "rgba(0,0,0,0.12)")
-        .style("stroke-width", 1)
-        .style("stroke-opacity", 0.5);
-
-      const bar = group
-        .append("rect")
-        .attr("x", margin.left)
-        .attr("y", y)
-        .attr("width", 0)
-        .attr("height", barHeight)
-        .attr("rx", 6)
-        .style("fill", colors[sec.label])
-        .style("filter", "drop-shadow(0 0 6px rgba(255,255,255,0.2))");
-
-      bar
+      // Animate progress
+      progressRing
         .transition()
-        .duration(1000)
+        .duration(1500)
         .ease(d3.easeCubicOut)
-        .attr("width", barWidth * sec.progress);
+        .attr("stroke-dashoffset", circumference * (1 - sec.progress));
 
+      // Icon in center
+      const iconSize = Math.max(20, Math.min(32, ringRadius * 1.2));
       group
         .append("text")
-        .attr("x", width - margin.right)
-        .attr("y", y + 11)
-        .attr("text-anchor", "end")
-        .text(`${Math.round(sec.progress * 100)}%`)
-        .style("fill", "#111827")
-        .style("font-size", "14px")
-        .style("font-weight", "600");
+        .attr("text-anchor", "middle")
+        .attr("dy", "-6")
+        .attr("font-size", `${iconSize}px`)
+        .text(sec.icon);
 
-      // Hover Glow and Tooltip
+      // Percentage text
+      const percentFontSize = Math.max(12, Math.min(16, ringRadius * 0.7));
+      group
+        .append("text")
+        .attr("text-anchor", "middle")
+        .attr("dy", `${percentFontSize + 2}`)
+        .attr("font-size", `${percentFontSize}px`)
+        .attr("font-weight", "700")
+        .attr("fill", "#111827")
+        .text(`${Math.round(sec.progress * 100)}%`);
+
+      // Label below ring
+      const labelFontSize = Math.max(10, Math.min(14, ringRadius * 0.5));
+      const labelOffset = ringRadius + Math.max(20, ringRadius * 0.4);
+      group
+        .append("text")
+        .attr("text-anchor", "middle")
+        .attr("dy", labelOffset)
+        .attr("font-size", `${labelFontSize}px`)
+        .attr("font-weight", "600")
+        .attr("fill", "#6B7280")
+        .text(sec.label);
+
+      // Hover effects
       group
         .on("mouseover", function (event) {
           d3.select(this)
-            .select("rect:nth-child(2)")
+            .select("circle:last-child")
             .transition()
             .duration(200)
-            .style("filter", "drop-shadow(0 0 12px rgba(255,255,255,0.5))");
-          
+            .attr("stroke-width", ringStrokeWidth + 2)
+            .attr("r", ringRadius + 2);
+
           const [mouseX, mouseY] = d3.pointer(event, document.body);
           tooltip
-            .html(`<div class="tooltip-content">
-              <div class="tooltip-description">${sec.description}</div>
-              <div class="tooltip-count">${sec.completed}/${sec.total} completed</div>
-            </div>`)
-            .style("left", (mouseX + 10) + "px")
+            .html(`
+              <div style="font-weight:600;margin-bottom:4px;">${sec.icon} ${sec.label}</div>
+              <div style="font-size:11px;opacity:0.9;">${sec.description}</div>
+              <div style="margin-top:6px;font-size:12px;">
+                <strong>${sec.completed}/${sec.total}</strong> completed
+              </div>
+            `)
+            .style("left", (mouseX + 15) + "px")
             .style("top", (mouseY - 10) + "px")
             .transition()
             .duration(200)
@@ -239,23 +273,22 @@ export default function PatientLogistic({ patientNumber = 1 }) {
         .on("mousemove", function (event) {
           const [mouseX, mouseY] = d3.pointer(event, document.body);
           tooltip
-            .style("left", (mouseX + 10) + "px")
+            .style("left", (mouseX + 15) + "px")
             .style("top", (mouseY - 10) + "px");
         })
         .on("mouseout", function () {
           d3.select(this)
-            .select("rect:nth-child(2)")
+            .select("circle:last-child")
             .transition()
             .duration(200)
-            .style("filter", "drop-shadow(0 0 6px rgba(255,255,255,0.2))");
-          
+            .attr("stroke-width", ringStrokeWidth)
+            .attr("r", ringRadius);
+
           tooltip
             .transition()
             .duration(200)
             .style("opacity", 0);
         });
-
-      y += labelHeight + gapAfterLabel + barHeight + sectionSpacing;
     });
 
     // Set SVG dimensions to exactly match container
@@ -282,14 +315,6 @@ export default function PatientLogistic({ patientNumber = 1 }) {
           const containerHeight = container.clientHeight || 400;
           const width = containerWidth;
           const height = containerHeight;
-          const margin = { top: 15, left: 12, right: 12, bottom: 12 };
-
-          const colors = {
-            Education: "url(#gradEdu)",
-            Medication: "url(#gradMed)",
-            Caregiver: "url(#gradCare)",
-            "Follow-ups": "url(#gradFollow)",
-          };
 
           const sections = [
             {
@@ -300,6 +325,8 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               completed: data.education.completed,
               total: data.education.topics.length,
               description: "View education topics and completion status",
+              icon: "🎓",
+              color: { from: "#60A5FA", to: "#2563EB" },
             },
             {
               label: "Medication",
@@ -310,6 +337,8 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               completed: data.medications.filter((m) => m.status === "completed").length,
               total: data.medications.length,
               description: "View medication list and completion status",
+              icon: "💊",
+              color: { from: "#A78BFA", to: "#8B5CF6" },
             },
             {
               label: "Caregiver",
@@ -322,6 +351,8 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               completed: data.caregiver.status === "full" ? 1 : data.caregiver.status === "partial" ? 1 : 0,
               total: 1,
               description: "View caregiver information and status",
+              icon: "🧑‍🤝‍🧑",
+              color: { from: "#F472B6", to: "#EC4899" },
             },
             {
               label: "Follow-ups",
@@ -332,30 +363,26 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               completed: data.followUps.filter((f) => f.completed).length,
               total: data.followUps.length,
               description: "View follow-up tasks and completion status",
+              icon: "📋",
+              color: { from: "#FBBF24", to: "#F59E0B" },
             },
           ];
 
           const defs = svg.append("defs");
-          const gradients = [
-            { id: "gradEdu", from: "#60A5FA", to: "#2563EB" }, // Blue gradient - light to dark
-            { id: "gradMed", from: "#A78BFA", to: "#8B5CF6" }, // Purple gradient - light to dark
-            { id: "gradCare", from: "#F472B6", to: "#EC4899" }, // Pink gradient - light to dark
-            { id: "gradFollow", from: "#FBBF24", to: "#F59E0B" }, // Amber gradient - light to dark
-          ];
-
-          gradients.forEach((g) => {
+          // Create gradients for each section
+          sections.forEach((sec, i) => {
             const grad = defs
               .append("linearGradient")
-              .attr("id", g.id)
+              .attr("id", `grad${i}`)
               .attr("x1", "0%")
               .attr("x2", "100%")
               .attr("y1", "0%")
               .attr("y2", "0%");
-            grad.append("stop").attr("offset", "0%").attr("stop-color", g.from);
-            grad.append("stop").attr("offset", "100%").attr("stop-color", g.to);
+            grad.append("stop").attr("offset", "0%").attr("stop-color", sec.color.from);
+            grad.append("stop").attr("offset", "100%").attr("stop-color", sec.color.to);
           });
 
-          // Create or get tooltip element first
+          // Create or get tooltip element
           let tooltip = d3.select("body").select(".logistic-tooltip");
           if (tooltip.empty()) {
             tooltip = d3.select("body")
@@ -364,124 +391,161 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               .style("opacity", 0)
               .style("position", "absolute")
               .style("pointer-events", "none")
-              .style("z-index", 10001);
+              .style("z-index", 10001)
+              .style("background", "rgba(0,0,0,0.85)")
+              .style("color", "#fff")
+              .style("padding", "10px 14px")
+              .style("border-radius", "6px")
+              .style("font-size", "13px");
           }
 
-           // Calculate title height
-           const titleHeight = 20; // Title text height
-           const titleMargin = 12; // Space after title
-           
-           // --- Render Title at top - centered and standardized ---
-           const titleFontSize = containerWidth < 600 ? "14px" : 
-                                containerWidth < 900 ? "16px" : "18px";
-           
-           svg
-             .append("text")
-             .attr("x", width / 2)
-             .attr("y", 20)
-             .attr("text-anchor", "middle")
-             .attr("font-size", titleFontSize)
-             .attr("font-weight", "600")
-             .attr("fill", "#111827")
-             .text("Patient Logistics & Education");
-
-           // Calculate available height for sections (excluding title)
-           // Title is at y=20, so title area ends at y=20 + titleHeight + titleMargin
-           const titleAreaHeight = 20 + titleHeight + titleMargin;
-           const sectionAreaTop = titleAreaHeight;
-          const sectionAreaBottom = height - margin.bottom;
-          const availableHeightForSections = sectionAreaBottom - sectionAreaTop;
+          // --- Render Title at top - centered and standardized ---
+          const titleFontSize = containerWidth < 600 ? "14px" : 
+                               containerWidth < 900 ? "16px" : "18px";
+          const titleHeight = 25;
+          const titleMargin = 8;
           
-           // Calculate total height needed for all sections
-           const sectionCount = sections.length;
-           const labelHeight = 6; // Height for label text
-           const gapAfterLabel = 6; // Gap between label and bar
-           const barHeight = 14; // Height of progress bar
-           // Calculate spacing to fill available height - distribute evenly
-           const sectionSpacing = 18;
-           const totalSectionHeight = sectionCount * (labelHeight + gapAfterLabel + barHeight) + (sectionCount - 1) * sectionSpacing;
-           
-           // Position sections above center, closer to title but still visually balanced
-           // Use 30% offset from top instead of 50% (center) to position higher
-           const verticalOffset = (availableHeightForSections - totalSectionHeight) * 0.3;
-           const startY = sectionAreaTop + verticalOffset;
-          
-          let y = startY;
+          svg
+            .append("text")
+            .attr("x", width / 2)
+            .attr("y", titleHeight)
+            .attr("text-anchor", "middle")
+            .attr("font-size", titleFontSize)
+            .attr("font-weight", "600")
+            .attr("fill", "#111827")
+            .text("Patient Logistics & Education");
 
+          // Calculate available space for rings (excluding title and labels)
+          const topMargin = titleHeight + titleMargin;
+          const bottomMargin = 35; // Space for labels below rings
+          const sideMargin = 15; // Side margins
+          const availableWidth = width - (sideMargin * 2);
+          const availableHeight = height - topMargin - bottomMargin;
+
+          // Layout: 2x2 grid of circular progress rings
+          // Calculate optimal ring size to fill container
+          const gridCols = 2;
+          const gridRows = 2;
+          
+          // Calculate spacing between rings (15% of available space)
+          const horizontalGap = availableWidth * 0.12;
+          const verticalGap = availableHeight * 0.12;
+          
+          // Calculate maximum ring diameter that fits
+          const maxRingWidth = (availableWidth - horizontalGap) / gridCols;
+          const maxRingHeight = (availableHeight - verticalGap) / gridRows;
+          const maxRingDiameter = Math.min(maxRingWidth, maxRingHeight);
+          
+          // Ring radius should be about 45% of cell size to leave room for labels
+          const ringRadius = Math.max(35, Math.min(60, maxRingDiameter * 0.45));
+          const ringStrokeWidth = Math.max(8, Math.min(12, ringRadius * 0.15));
+          
+          // Calculate spacing between ring centers
+          const horizontalSpacing = (availableWidth - (ringRadius * 2 * gridCols)) / (gridCols - 1) + (ringRadius * 2);
+          const verticalSpacing = (availableHeight - (ringRadius * 2 * gridRows)) / (gridRows - 1) + (ringRadius * 2);
+          
+          // Calculate starting position to center the grid
+          const totalGridWidth = (ringRadius * 2 * gridCols) + (horizontalSpacing - ringRadius * 2) * (gridCols - 1);
+          const totalGridHeight = (ringRadius * 2 * gridRows) + (verticalSpacing - ringRadius * 2) * (gridRows - 1);
+          const startX = sideMargin + (availableWidth - totalGridWidth) / 2 + ringRadius;
+          const startY = topMargin + (availableHeight - totalGridHeight) / 2 + ringRadius;
+
+          const positions = [
+            { x: startX, y: startY }, // Top-left
+            { x: startX + horizontalSpacing, y: startY }, // Top-right
+            { x: startX, y: startY + verticalSpacing }, // Bottom-left
+            { x: startX + horizontalSpacing, y: startY + verticalSpacing }, // Bottom-right
+          ];
+
+          // --- Render Circular Progress Rings ---
           sections.forEach((sec, i) => {
+            const pos = positions[i];
             const group = svg
               .append("g")
+              .attr("transform", `translate(${pos.x}, ${pos.y})`)
               .style("cursor", "pointer")
               .on("click", () => setShowModal(sec.label));
 
+            // Background ring (gray)
             group
-              .append("text")
-              .attr("x", margin.left)
-              .attr("y", y)
-              .text(sec.label)
-              .style("fill", "#111827")
-              .style("font-size", "15px")
-              .style("font-weight", "700");
+              .append("circle")
+              .attr("r", ringRadius)
+              .attr("fill", "none")
+              .attr("stroke", "#E5E7EB")
+              .attr("stroke-width", ringStrokeWidth);
 
-            y += 6;
+            // Progress ring
+            const circumference = 2 * Math.PI * ringRadius;
+            const progressRing = group
+              .append("circle")
+              .attr("r", ringRadius)
+              .attr("fill", "none")
+              .attr("stroke", `url(#grad${i})`)
+              .attr("stroke-width", ringStrokeWidth)
+              .attr("stroke-linecap", "round")
+              .attr("stroke-dasharray", circumference)
+              .attr("stroke-dashoffset", circumference)
+              .attr("transform", "rotate(-90)");
 
-            const barWidth = width - margin.left - margin.right - 50;
-            const barHeight = 14;
-
-            group
-              .append("rect")
-              .attr("x", margin.left)
-              .attr("y", y)
-              .attr("width", barWidth)
-              .attr("height", barHeight)
-              .attr("rx", 6)
-              .style("fill", "rgba(255,255,255,0.08)")
-              .style("stroke", "rgba(0,0,0,0.12)")
-              .style("stroke-width", 1)
-              .style("stroke-opacity", 1);
-
-            const bar = group
-              .append("rect")
-              .attr("x", margin.left)
-              .attr("y", y)
-              .attr("width", 0)
-              .attr("height", barHeight)
-              .attr("rx", 6)
-              .style("fill", colors[sec.label])
-              .style("filter", "drop-shadow(0 0 6px rgba(255,255,255,0.2))");
-
-            bar
+            // Animate progress
+            progressRing
               .transition()
-              .duration(1000)
+              .duration(1500)
               .ease(d3.easeCubicOut)
-              .attr("width", barWidth * sec.progress);
+              .attr("stroke-dashoffset", circumference * (1 - sec.progress));
 
+            // Icon in center
+            const iconSize = Math.max(20, Math.min(32, ringRadius * 1.2));
             group
               .append("text")
-              .attr("x", width - margin.right)
-              .attr("y", y + 11)
-              .attr("text-anchor", "end")
-              .text(`${Math.round(sec.progress * 100)}%`)
-              .style("fill", "#111827")
-              .style("font-size", "14px")
-              .style("font-weight", "600");
+              .attr("text-anchor", "middle")
+              .attr("dy", "-6")
+              .attr("font-size", `${iconSize}px`)
+              .text(sec.icon);
 
-            // Hover Glow and Tooltip
+            // Percentage text
+            const percentFontSize = Math.max(12, Math.min(16, ringRadius * 0.7));
+            group
+              .append("text")
+              .attr("text-anchor", "middle")
+              .attr("dy", `${percentFontSize + 2}`)
+              .attr("font-size", `${percentFontSize}px`)
+              .attr("font-weight", "700")
+              .attr("fill", "#111827")
+              .text(`${Math.round(sec.progress * 100)}%`);
+
+            // Label below ring
+            const labelFontSize = Math.max(10, Math.min(14, ringRadius * 0.5));
+            const labelOffset = ringRadius + Math.max(20, ringRadius * 0.4);
+            group
+              .append("text")
+              .attr("text-anchor", "middle")
+              .attr("dy", labelOffset)
+              .attr("font-size", `${labelFontSize}px`)
+              .attr("font-weight", "600")
+              .attr("fill", "#6B7280")
+              .text(sec.label);
+
+            // Hover effects
             group
               .on("mouseover", function (event) {
                 d3.select(this)
-                  .select("rect:nth-child(2)")
+                  .select("circle:last-child")
                   .transition()
                   .duration(200)
-                  .style("filter", "drop-shadow(0 0 12px rgba(255,255,255,0.5))");
-                
+                  .attr("stroke-width", ringStrokeWidth + 2)
+                  .attr("r", ringRadius + 2);
+
                 const [mouseX, mouseY] = d3.pointer(event, document.body);
                 tooltip
-                  .html(`<div class="tooltip-content">
-                    <div class="tooltip-description">${sec.description}</div>
-                    <div class="tooltip-count">${sec.completed}/${sec.total} completed</div>
-                  </div>`)
-                  .style("left", (mouseX + 10) + "px")
+                  .html(`
+                    <div style="font-weight:600;margin-bottom:4px;">${sec.icon} ${sec.label}</div>
+                    <div style="font-size:11px;opacity:0.9;">${sec.description}</div>
+                    <div style="margin-top:6px;font-size:12px;">
+                      <strong>${sec.completed}/${sec.total}</strong> completed
+                    </div>
+                  `)
+                  .style("left", (mouseX + 15) + "px")
                   .style("top", (mouseY - 10) + "px")
                   .transition()
                   .duration(200)
@@ -490,23 +554,22 @@ export default function PatientLogistic({ patientNumber = 1 }) {
               .on("mousemove", function (event) {
                 const [mouseX, mouseY] = d3.pointer(event, document.body);
                 tooltip
-                  .style("left", (mouseX + 10) + "px")
+                  .style("left", (mouseX + 15) + "px")
                   .style("top", (mouseY - 10) + "px");
               })
               .on("mouseout", function () {
                 d3.select(this)
-                  .select("rect:nth-child(2)")
+                  .select("circle:last-child")
                   .transition()
                   .duration(200)
-                  .style("filter", "drop-shadow(0 0 6px rgba(255,255,255,0.2))");
-                
+                  .attr("stroke-width", ringStrokeWidth)
+                  .attr("r", ringRadius);
+
                 tooltip
                   .transition()
                   .duration(200)
                   .style("opacity", 0);
               });
-
-            y += labelHeight + gapAfterLabel + barHeight + sectionSpacing;
           });
 
           // Set SVG dimensions to exactly match container
