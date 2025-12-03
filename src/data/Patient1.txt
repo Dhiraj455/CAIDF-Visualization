@@ -1,4 +1,4 @@
-Patient Name: 12738
+Patient Name: Tom
 Age/Gender: 75 Year Old/ Male
 Admission Date: 5/4
 Discharge Date: 5/11

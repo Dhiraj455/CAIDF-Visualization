@@ -89,6 +89,8 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
     const titleFontSize = width < 600 ? "14px" : 
                          width < 900 ? "16px" : "18px";
     
+    
+    
     svg
       .append("text")
       .attr("x", width / 2)
@@ -147,16 +149,49 @@ export default function ReadinessRadarChart({ patientNumber = 1 }) {
         .attr("stroke-dasharray", i === levels.length - 1 ? "none" : "2,2");
 
       // Level labels
-      if (level === 3) {
-        g.append("text")
-          .attr("x", 5)
-          .attr("y", -rScale(level) + 4)
-          .attr("text-anchor", "start")
-          .attr("font-size", "11px")
-          .attr("font-weight", "700")
-          .attr("fill", "#111827")
-          .text(level);
-      }
+      //if (level === 3) {
+        //g.append("text")
+          //.attr("x", 5)
+          //.attr("y", -rScale(level) + 4)
+          //.attr("text-anchor", "start")
+          //.attr("font-size", "11px")
+          //.attr("font-weight", "700")
+          //.attr("fill", "#111827")
+          //.text(level);
+      //}
+    });
+
+    // Legend for readiness scale (0–3)
+    const legendWidth = 195;
+    const legendHeight = 55;
+    const scoreLegend = svg
+      .append("g")
+      .attr("transform", `translate(${width - legendWidth}, ${margin.top -30})`);
+
+    scoreLegend
+      .append("rect")
+      .attr("width", legendWidth)
+      .attr("height", legendHeight)
+      .attr("rx", 6)
+      .attr("fill", "#F9FAFB")
+      .attr("stroke", "#E5E7EB")
+      .attr("stroke-width", 1);
+    
+    const legendLines = [
+      "0 = Severe deficit / needs full support",
+      "1 = Significant issues / major assistance",
+      "2 = Some limitations / partially independent",
+      "3 = Ready / independent"
+    ];
+    
+    legendLines.forEach((text, i) => {
+      scoreLegend
+        .append("text")
+        .attr("x", 10)
+        .attr("y", 13 + i * 11)
+        .attr("font-size", "9px")
+        .attr("fill", "#6B7280")
+        .text(text);
     });
 
     // Create tooltip

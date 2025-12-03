@@ -29,7 +29,25 @@ export default function PatientTimeLine({ patientNumber = 1 }) {
       .attr("width", w)
       .attr("height", h);
 
-    const g = svg.append("g")
+    // 🔹 Add chart title here
+    svg.append("text")
+      .attr("x", w / 2)
+      .attr("y", margin.top / 2)   // a bit below the top edge
+      .attr("text-anchor", "middle")
+      .attr("fill", "#111827")     // dark gray/black
+      .attr("font-size", "18px")
+      .attr("font-weight", "600")
+      .text("Clinical Events Timeline");
+    
+    svg.append("text")
+      .attr("x", w / 2)
+      .attr("y", margin.top / 2 + 18)   // slightly below the title
+      .attr("text-anchor", "middle")
+      .attr("fill", "#6B7280")          // Tailwind gray-500
+      .attr("font-size", "12px")
+      .text("Key events across the patient’s care stages");
+    
+      const g = svg.append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     // ----- aggregate events by phase using sections (which have the count) -----

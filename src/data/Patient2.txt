@@ -1,4 +1,4 @@
-Patient Name:  253
+Patient Name:  Jerry
 Age/Gender: 65 Year Old / Female
 Admission Date: 6/15
 Discharge Date: 7/12 
